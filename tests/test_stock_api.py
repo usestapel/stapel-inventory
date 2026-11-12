@@ -120,7 +120,15 @@ class TestTransfer:
 class TestLocations:
     def test_list_creates_the_default(self, staff_client):
         body = staff_client.get(f"{V1}/locations/").json()
-        assert [loc["code"] for loc in body] == ["main"] and body[0]["is_default"]
+        assert [loc["code"] for loc in body["items"]] == ["main"] and body["items"][0]["is_default"]
+
+    def test_list_is_anchor_paginated(self, staff_client):
+        for i in range(3):
+            location(f"wh-{i}")
+        first = staff_client.get(f"{V1}/locations/?limit=2").json()
+        assert [loc["code"] for loc in first["items"]] == ["main", "wh-0"] and first["has_next"]
+        rest = staff_client.get(f"{V1}/locations/?limit=2&anchor={first['next_anchor']}").json()
+        assert [loc["code"] for loc in rest["items"]] == ["wh-1", "wh-2"]
 
     def test_create_and_make_default(self, staff_client):
         staff_client.get(f"{V1}/locations/")

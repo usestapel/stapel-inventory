@@ -28,7 +28,7 @@ LLMS_TXT_BUDGET = "6000"
 #: The codegen contract the react pair generates from (docs/SPEC.md §6).
 STABLE_COMPONENTS = {
     "AvailabilityResponse", "AvailabilityItem", "AvailabilityStateEnum",
-    "LocationRequest", "LocationResponse", "PatchedLocationUpdateRequest",
+    "LocationRequest", "LocationResponse", "LocationPage", "PatchedLocationUpdateRequest",
     "StockItemResponse", "StockItemPage", "PatchedStockItemUpdateRequest",
     "StockReceiveRequest", "StockAdjustRequest", "StockTransferRequest", "StockTransferResponse",
     "StockMovementResponse", "StockMovementPage",

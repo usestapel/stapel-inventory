@@ -16,10 +16,11 @@ from stapel_core.flows import flow_step
 from .errors import ERR_400_TOO_MANY_KEYS, ERR_404_STOCK_ITEM_NOT_FOUND
 from .flows import SHOP, STOCK
 from .models import AlertState, MovementKind, StockItem, StockMovement
-from .pagination import MovementAnchorPagination, StockAnchorPagination
+from .pagination import LocationAnchorPagination, MovementAnchorPagination, StockAnchorPagination
 from .presenters import get_availability_presenter, get_stock_presenter
 from .serializers import (
     AvailabilityResponseSerializer,
+    LocationPageSerializer,
     LocationRequestSerializer,
     LocationResponseSerializer,
     LocationUpdateRequestSerializer,
@@ -116,16 +117,20 @@ class AvailabilityView(_InventoryView):
 
 @extend_schema(tags=TAGS)
 class LocationListView(_StaffView):
+    pagination_class = LocationAnchorPagination
     request_serializer_class = LocationRequestSerializer
     response_serializer_class = LocationResponseSerializer
 
     @extend_schema(operation_id="inventory_locations_list",
-                   responses={200: LocationResponseSerializer(many=True)})
+                   parameters=_anchor_parameters(LocationAnchorPagination),
+                   responses={200: LocationPageSerializer})
     @flow_step(STOCK, order=1, note="See the locations stock sits in")
     def get(self, request):
         presenter = get_stock_presenter()()
-        data = [presenter.location(loc) for loc in stock_service.list_locations()]
-        return self.serialized_response(data, many=True)
+        paginator = self.pagination_class()
+        page = paginator.paginate_queryset(stock_service.list_locations(), request, view=self)
+        data = LocationResponseSerializer([presenter.location(loc) for loc in page], many=True).data
+        return paginator.get_paginated_response(data)
 
     @extend_schema(operation_id="inventory_locations_create", request=LocationRequestSerializer,
                    responses={201: LocationResponseSerializer})

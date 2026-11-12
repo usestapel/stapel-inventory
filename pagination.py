@@ -29,6 +29,12 @@ class _IdAnchorPagination(AnchorPagination):
         return response
 
 
+class LocationAnchorPagination(_IdAnchorPagination):
+    """Locations in creation order (``priority`` is a field the client may sort by)."""
+
+    ordering = "id"
+
+
 class StockAnchorPagination(_IdAnchorPagination):
     """Stock items in creation order."""
 

@@ -105,6 +105,17 @@ class StockItemPageSerializer(serializers.Serializer):
     count = serializers.IntegerField()
 
 
+class LocationPageSerializer(serializers.Serializer):
+    """The anchor envelope of the locations list (schema only — the paginator builds it)."""
+
+    items = LocationResponseSerializer(many=True)
+    next_anchor = serializers.CharField(max_length=64, allow_null=True)
+    prev_anchor = serializers.CharField(max_length=64, allow_null=True)
+    has_next = serializers.BooleanField()
+    has_prev = serializers.BooleanField()
+    count = serializers.IntegerField()
+
+
 class StockItemUpdateRequestSerializer(serializers.Serializer):
     low_stock_threshold = serializers.IntegerField(min_value=0, max_value=QUANTITY_CEILING,
                                                    allow_null=True, required=False)

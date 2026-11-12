@@ -7,6 +7,8 @@ Pre-1.0 semver: **minor = breaking**, patch = compatible.
 ## [0.1.0] - unreleased
 
 ### Added
+- `GET locations/` is anchor-paginated (`LocationPage`, creation order),
+  like the stock list and the ledger.
 - `GET stock/{id}/` (staff): one stock item.
 - Availability answers exactly one item per distinct key asked, in order;
   an unknown key reads `untracked` (`out_of_stock` under
