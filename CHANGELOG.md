@@ -7,6 +7,9 @@ Pre-1.0 semver: **minor = breaking**, patch = compatible.
 ## [0.1.0] - unreleased
 
 ### Added
+- Availability answers exactly one item per distinct key asked, in order;
+  an unknown key reads `untracked` (`out_of_stock` under
+  `TRACK_UNKNOWN="deny"`) — specified and tested.
 - `MAX_AVAILABILITY_KEYS` is a capabilities axis (the batch size a client
   pages by); the refusal keeps `params.max`.
 - Every domain refusal names its request field in `params.field`

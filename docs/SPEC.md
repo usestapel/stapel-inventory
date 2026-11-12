@@ -152,7 +152,7 @@ of its default-location item (else its first candidate) applies.
 
 | Method/path | Who | Request → Response |
 |---|---|---|
-| `GET availability/?purchasable_type=&keys=` | public | → `AvailabilityResponse {items: [AvailabilityItem {purchasable_type, purchasable_key, state, quantity}]}`; `state` ∈ `in_stock, few_left, out_of_stock, backorder, untracked`; `quantity` only under `PUBLIC_AVAILABILITY="exact"`; ≤ 100 keys |
+| `GET availability/?purchasable_type=&keys=` | public | → `AvailabilityResponse {items: [AvailabilityItem {purchasable_type, purchasable_key, state, quantity}]}`; `state` ∈ `in_stock, few_left, out_of_stock, backorder, untracked`; `quantity` only under `PUBLIC_AVAILABILITY="exact"`; ≤ `MAX_AVAILABILITY_KEYS` keys. **Exactly one item per distinct key asked, in the order asked** (duplicates collapse): a key with no stock item reads `untracked` (sellable, not stock-managed) — or `out_of_stock` under `TRACK_UNKNOWN="deny"`, where checkout would refuse it |
 | `GET locations/`, `POST locations/` | staff | `LocationRequest` → `LocationResponse` |
 | `PATCH locations/{code}/` | staff | `PatchedLocationUpdateRequest` → `LocationResponse` |
 | `GET stock/` | staff | `?purchasable_type&purchasable_key&location&alert_state` → `StockItemPage` (anchor) |

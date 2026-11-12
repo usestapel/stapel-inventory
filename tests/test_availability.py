@@ -113,3 +113,16 @@ def test_the_key_limit_is_discoverable():
     [axis] = [a for a in caps["axes"] if a["key"] == "MAX_AVAILABILITY_KEYS"]
     assert axis["default"] == DEFAULTS["MAX_AVAILABILITY_KEYS"]
     assert "params.max" in axis["curated"]["summary"]
+
+
+@pytest.mark.parametrize("track_unknown,unknown_state", [("allow", "untracked"), ("deny", "out_of_stock")])
+def test_every_key_asked_gets_exactly_one_item_in_order(api_client, settings, track_unknown, unknown_state):
+    settings.STAPEL_INVENTORY = {"TRACK_UNKNOWN": track_unknown}
+    stock_of("b", 9)
+    resp = api_client.get("/inventory/api/v1/availability/?purchasable_type=listing"
+                          "&keys=zz&keys=b&keys=zz&keys=never-seen")
+    items = resp.json()["items"]
+    assert [(i["purchasable_key"], i["state"]) for i in items] == [
+        ("zz", unknown_state), ("b", "in_stock"), ("never-seen", unknown_state)]
+    answer = call("inventory.availability", {"purchasable_type": "listing", "keys": ["zz", "b", "zz"]})
+    assert list(answer["items"]) == ["zz", "b"] and answer["items"]["zz"]["tracked"] is False
