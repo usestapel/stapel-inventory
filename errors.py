@@ -23,14 +23,25 @@ STAPEL_INVENTORY_ERRORS = {
     ERR_400_TOO_MANY_KEYS: "Ask for at most {max} items at once",
     ERR_400_ADJUST_AMBIGUOUS: "Give either a change or a counted quantity, not both",
     ERR_400_TRANSFER_SAME_LOCATION: "Pick two different locations",
-    ERR_404_LOCATION_NOT_FOUND: "Location not found",
+    ERR_404_LOCATION_NOT_FOUND: "Location {code} not found",
     ERR_404_STOCK_ITEM_NOT_FOUND: "Stock item not found",
     ERR_409_INSUFFICIENT_STOCK: "Only {available} left of this item",
     ERR_409_STOCK_NOT_TRACKED: "This item cannot be sold right now",
-    ERR_409_LOCATION_INACTIVE: "This location is not active",
-    ERR_409_LOCATION_EXISTS: "A location with this code already exists",
-    ERR_409_DEFAULT_LOCATION_REQUIRED: "The default location cannot be switched off",
+    ERR_409_LOCATION_INACTIVE: "Location {code} is not active",
+    ERR_409_LOCATION_EXISTS: "A location with code {code} already exists",
+    ERR_409_DEFAULT_LOCATION_REQUIRED: "The default location {code} cannot be switched off",
     ERR_409_STOCK_WOULD_GO_NEGATIVE: "Only {on_hand} on hand at this location",
+}
+
+#: Params a refusal may send beyond its template's placeholders. Core derives
+#: an error's declared params from the ``{placeholders}`` of its English
+#: template only; these are structural (which line, which purchasable, which
+#: field), so they stay out of the sentence. ``_codegen`` merges them into
+#: ``docs/errors.json``; ``tests/test_error_params.py`` holds every raise site
+#: to "sends the placeholders, and nothing undeclared".
+ERROR_PARAMS = {
+    ERR_409_INSUFFICIENT_STOCK: ("index", "purchasable_type", "purchasable_key", "requested", "field"),
+    ERR_409_STOCK_NOT_TRACKED: ("index", "purchasable_type", "purchasable_key", "field"),
 }
 
 #: Explicit remediation where the status heuristic would mislead.

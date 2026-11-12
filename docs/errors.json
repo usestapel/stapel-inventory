@@ -262,9 +262,11 @@
   {
     "code": "error.404.location_not_found",
     "status": 404,
-    "params": [],
+    "params": [
+      "code"
+    ],
     "remediation": "retry",
-    "en": "Location not found",
+    "en": "Location {code} not found",
     "owner": "stapel_inventory"
   },
   {
@@ -326,16 +328,23 @@
   {
     "code": "error.409.default_location_required",
     "status": 409,
-    "params": [],
+    "params": [
+      "code"
+    ],
     "remediation": "fix_input",
-    "en": "The default location cannot be switched off",
+    "en": "The default location {code} cannot be switched off",
     "owner": "stapel_inventory"
   },
   {
     "code": "error.409.insufficient_stock",
     "status": 409,
     "params": [
-      "available"
+      "available",
+      "index",
+      "purchasable_type",
+      "purchasable_key",
+      "requested",
+      "field"
     ],
     "remediation": "retry",
     "en": "Only {available} left of this item",
@@ -344,23 +353,32 @@
   {
     "code": "error.409.location_exists",
     "status": 409,
-    "params": [],
+    "params": [
+      "code"
+    ],
     "remediation": "fix_input",
-    "en": "A location with this code already exists",
+    "en": "A location with code {code} already exists",
     "owner": "stapel_inventory"
   },
   {
     "code": "error.409.location_inactive",
     "status": 409,
-    "params": [],
+    "params": [
+      "code"
+    ],
     "remediation": "fix_input",
-    "en": "This location is not active",
+    "en": "Location {code} is not active",
     "owner": "stapel_inventory"
   },
   {
     "code": "error.409.stock_not_tracked",
     "status": 409,
-    "params": [],
+    "params": [
+      "index",
+      "purchasable_type",
+      "purchasable_key",
+      "field"
+    ],
     "remediation": "fix_input",
     "en": "This item cannot be sold right now",
     "owner": "stapel_inventory"

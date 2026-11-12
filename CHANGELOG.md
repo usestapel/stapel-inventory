@@ -7,6 +7,11 @@ Pre-1.0 semver: **minor = breaking**, patch = compatible.
 ## [0.1.0] - unreleased
 
 ### Added
+- Error params declared in `docs/errors.json`: `insufficient_stock` /
+  `stock_not_tracked` list what the hook sends (`index, purchasable_type,
+  purchasable_key, requested, available, field`) via `errors.ERROR_PARAMS`;
+  location refusals name the `{code}`. `tests/test_error_params.py` holds
+  every raise site to its declaration.
 - Orders seam gate `tests/test_orders_seam.py`: payloads validated against
   orders' own Function schemas (fixtures pinned by orders sha), then against
   ours, then sent through comm; answers validated against orders' result

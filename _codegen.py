@@ -107,6 +107,7 @@ def main(argv: list[str] | None = None) -> int:
     paths = emit_schema(out / "schema.json")
     flows = emit_flows(out / "flows.json")
     errors = emit_errors(out / "errors.json")
+    _declare_extra_params(out / "errors.json")
 
     print(
         f"stapel-inventory contract: {paths} paths, {flows} flows, {errors} error keys "
@@ -114,6 +115,23 @@ def main(argv: list[str] | None = None) -> int:
         file=sys.stderr,
     )
     return 0
+
+
+def _declare_extra_params(path: Path) -> None:
+    """Add ``errors.ERROR_PARAMS`` (structural params) to this package's entries."""
+    import json
+
+    from stapel_core.i18n.domains import params_of
+    from stapel_tools.codegen import _stable_json
+
+    from stapel_inventory.errors import ERROR_PARAMS
+
+    entries = json.loads(path.read_text())
+    for entry in entries:
+        extra = ERROR_PARAMS.get(entry["code"])
+        if extra and entry.get("owner") == "stapel_inventory":
+            entry["params"] = list(dict.fromkeys([*params_of(entry["en"]), *extra]))
+    path.write_text(_stable_json(entries))
 
 
 if __name__ == "__main__":
