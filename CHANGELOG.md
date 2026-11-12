@@ -7,6 +7,8 @@ Pre-1.0 semver: **minor = breaking**, patch = compatible.
 ## [0.1.0] - unreleased
 
 ### Added
+- Explicit checkout hook order (`preset.py`): inventory 50 (stock first),
+  promotions 100, delivery 200 — never a tie broken by name.
 - README wiring snippets in the merge forms (the scaffold's
   `_stapel_merge_preset_defaults` list, or a per-key hand merge); pasting
   them never drops the host's `STAPEL_ORDERS` keys — executed against a

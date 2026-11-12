@@ -40,7 +40,7 @@ This is the answer to "does Stapel already have something for X?". `instead of` 
 - STAPEL_INVENTORY_AVAILABILITY_PRESENTER / STAPEL_INVENTORY_STOCK_PRESENTER [presenter]
   Swap keys (STAPEL_SWAP) for the public availability presenter (where the disclosure policy is applied) and the staff stock/ledger presenter.
 - STAPEL_ORDERS['CHECKOUT_HOOKS']['inventory'] [setting]
-  The orders checkout hook entry shipped in stapel_inventory.preset.SETTINGS_DEFAULTS: reserve / commit / release Function names and order 100. Merge it under the project's STAPEL_ORDERS; nothing else wires stock into checkout.
+  The orders checkout hook entry shipped in stapel_inventory.preset.SETTINGS_DEFAULTS: reserve / commit / release Function names and order 50 (stock first: before promotions 100 and delivery 200). Merge it under the project's STAPEL_ORDERS; nothing else wires stock into checkout.
 - inventory.availability [comm_function]
   Exact availability for a keyed batch of one purchasable type (on_hand, held, available, policy, per location) for a listing page or another module; the public endpoint applies PUBLIC_AVAILABILITY on top.
 - inventory.stock.low / inventory.stock.out / inventory.stock.back_in_stock [comm_event]

@@ -92,7 +92,7 @@ hand-wired host pastes it; upstream ask T-IN1):
     "reserve": "inventory.checkout.reserve",
     "commit": "inventory.checkout.commit",
     "release": "inventory.checkout.release",
-    "order": 100,
+    "order": 50,
 }}}
 ```
 

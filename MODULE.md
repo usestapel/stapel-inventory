@@ -49,7 +49,9 @@ touches the database; the service has already locked and counted.
 ### Orders wiring (`preset.py`)
 
 `SETTINGS_DEFAULTS["STAPEL_ORDERS"]["CHECKOUT_HOOKS"]["inventory"]` =
-`{reserve, commit, release, order: 100}`. The stapel-tools scaffold merges
+`{reserve, commit, release, order: 50}` (hooks reserve in an explicit
+order: inventory 50 — stock first —, promotions 100, delivery 200; release
+runs in reverse). The stapel-tools scaffold merges
 `SETTINGS_DEFAULTS` for composites only today; a host pastes it (README
 quick start) until the companion merge lands.
 

@@ -88,7 +88,7 @@
     {
       "name": "STAPEL_ORDERS['CHECKOUT_HOOKS']['inventory']",
       "kind": "setting",
-      "summary": "The orders checkout hook entry shipped in stapel_inventory.preset.SETTINGS_DEFAULTS: reserve / commit / release Function names and order 100. Merge it under the project's STAPEL_ORDERS; nothing else wires stock into checkout."
+      "summary": "The orders checkout hook entry shipped in stapel_inventory.preset.SETTINGS_DEFAULTS: reserve / commit / release Function names and order 50 (stock first: before promotions 100 and delivery 200). Merge it under the project's STAPEL_ORDERS; nothing else wires stock into checkout."
     },
     {
       "name": "STAPEL_INVENTORY_AVAILABILITY_PRESENTER / STAPEL_INVENTORY_STOCK_PRESENTER",

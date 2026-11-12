@@ -21,14 +21,19 @@ Without orders installed the fragment is inert: nobody reads
 ``STAPEL_ORDERS``.
 """
 
+#: Hook order: inventory 50 (stock first), promotions 100, delivery 200 —
+#: explicit, never a tie broken by name. Orders reserves in ascending order
+#: and releases in reverse, so a cart without stock is refused before any
+#: promotion use or delivery intent is held.
+HOOK_ORDER = 50
+
 #: The orders checkout hook entry (contract: SPEC-BRICKS-WAVE §2 + the
-#: orders contract deltas). ``order`` 100 = the default; inventory reserves
-#: before later hooks and is released after them.
+#: orders contract deltas).
 CHECKOUT_HOOK = {
     "reserve": "inventory.checkout.reserve",
     "commit": "inventory.checkout.commit",
     "release": "inventory.checkout.release",
-    "order": 100,
+    "order": HOOK_ORDER,
 }
 
 SETTINGS_DEFAULTS = {
