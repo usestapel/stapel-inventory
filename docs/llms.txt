@@ -2,7 +2,7 @@
 
 Stock per location for opaque purchasables (the orders purchasable pair), an append-only movement ledger whose sum is on_hand, and checkout holds with a TTL. Plugs into stapel-orders as a checkout hook (reserve / commit / release, idempotent on the checkout attempt key): a reserve locks the stock rows in ascending id order and re-counts availability under the lock, all-or-nothing across lines, so two shoppers racing for the last unit end as one order and one error.409.insufficient_stock. Allocation across locations is a strategy (single_default, priority); oversell is an axis (deny, backorder) with a per-item override; untracked purchasables pass through. A public availability endpoint discloses in-stock / few-left / out-of-stock per a policy; staff receive, adjust with a reason, transfer and import CSV. Low-stock, out-of-stock, back-in-stock and oversold facts fire once per transition. Beat tasks expire holds of crashed checkouts and reconcile the cache with the ledger.
 
-Contract: axes 6 · surface 5 · extension points 6 · operations 10 · error codes 53 · flows 2.
+Contract: axes 6 · surface 5 · extension points 6 · operations 11 · error codes 53 · flows 2.
 Generated from docs/capabilities.json by `stapel-llms-txt` — do not edit; drift-gated by `make contract-check`.
 
 ## Configuration axes — what a product switches on
@@ -55,7 +55,7 @@ This is the answer to "does Stapel already have something for X?". `instead of` 
 - stapel-core (required) — comm bus (inventory.* facts, availability and checkout hook Functions, user.merged consumer), AnchorPagination, GDPR owner protocol, AppSettings
 - stapel-orders (optional) — calls the checkout hooks registered by stapel_inventory.preset.SETTINGS_DEFAULTS; without it the stock API, availability and facts still work
 
-## HTTP operations (10) — call by operationId, never by a typed path
+## HTTP operations (11) — call by operationId, never by a typed path
 Paths are relative to `/inventory/api/v1/`.
 ### Inventory
 - GET /availability/ — inventory_availability_retrieve
@@ -67,6 +67,7 @@ Paths are relative to `/inventory/api/v1/`.
 - GET /stock/ — inventory_stock_list
 - PATCH /stock/{item_id}/ — inventory_stock_partial_update
 - POST /stock/receive/ — inventory_stock_receive
+- GET /stock/{item_id}/ — inventory_stock_retrieve
 - POST /stock/transfer/ — inventory_stock_transfer
 
 ## Error codes (53) — the StapelError envelope

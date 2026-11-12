@@ -365,6 +365,40 @@
       }
     },
     "/inventory/api/v1/stock/{item_id}/": {
+      "get": {
+        "operationId": "inventory_stock_retrieve",
+        "description": "Renders a service refusal as the fleet error envelope.\n\n**Permissions:** `IsStaffUser`",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "JWTCookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockItemResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
       "patch": {
         "operationId": "inventory_stock_partial_update",
         "description": "Renders a service refusal as the fleet error envelope.\n\n**Permissions:** `IsStaffUser`",

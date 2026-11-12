@@ -26,7 +26,7 @@ pip install stapel-inventory
 |---|---|
 | Version | `0.1.0` |
 | Python | `>=3.11` (3.11, 3.12, 3.13, 3.14) |
-| HTTP operations | 10 |
+| HTTP operations | 11 |
 | Config axes | 6 |
 | Usage surface | 5 |
 | Extension points | 6 |

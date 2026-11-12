@@ -158,7 +158,7 @@
       "intent": "Turn an ALLOCATION value (short name or dotted path) into a strategy instance; raises ImproperlyConfigured (check E001) for an unknown name."
     }
   ],
-  "operations_total": 10,
+  "operations_total": 11,
   "requires": [
     {
       "module": "stapel-core",

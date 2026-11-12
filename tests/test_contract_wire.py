@@ -96,6 +96,11 @@ def r_stock_list(env):
     return [env.staff.get(V1 + "/stock/?limit=1")], [empty]
 
 
+def r_stock_get(env):
+    item = stock_of("a", 5)
+    return [env.staff.get(_url(V1 + "/stock/{item_id}/", item_id=item.pk))], []
+
+
 def r_stock_patch(env):
     item = stock_of("a", 3)
     return [env.staff.patch(_url(V1 + "/stock/{item_id}/", item_id=item.pk),
@@ -133,6 +138,7 @@ RECIPES = {
     ("PATCH", V1 + "/locations/{code}/", 200): r_location_patch,
     ("GET", V1 + "/stock/", 200): r_stock_list,
     ("PATCH", V1 + "/stock/{item_id}/", 200): r_stock_patch,
+    ("GET", V1 + "/stock/{item_id}/", 200): r_stock_get,
     ("POST", V1 + "/stock/receive/", 200): r_receive,
     ("POST", V1 + "/stock/adjust/", 200): r_adjust,
     ("POST", V1 + "/stock/transfer/", 200): r_transfer,

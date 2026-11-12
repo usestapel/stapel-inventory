@@ -187,6 +187,10 @@ class StockDetailView(_StaffView):
     request_serializer_class = StockItemUpdateRequestSerializer
     response_serializer_class = StockItemResponseSerializer
 
+    @extend_schema(operation_id="inventory_stock_retrieve", responses={200: StockItemResponseSerializer})
+    def get(self, request, item_id):
+        return self._item_response(stock_service.get_item(item_id))
+
     @extend_schema(operation_id="inventory_stock_partial_update",
                    request=StockItemUpdateRequestSerializer,
                    responses={200: StockItemResponseSerializer})

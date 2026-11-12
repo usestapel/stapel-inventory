@@ -279,6 +279,13 @@ def transfer(purchasable_type, purchasable_key, from_code, to_code, quantity, *,
     return TransferResult(source=source, target=target)
 
 
+def get_item(item_id: int) -> StockItem:
+    item = StockItem.objects.select_related("location").filter(pk=item_id).first()
+    if item is None:
+        raise InventoryError(404, ERR_404_STOCK_ITEM_NOT_FOUND)
+    return item
+
+
 def update_item(item_id: int, values: dict) -> StockItem:
     """Threshold and per-item oversell policy; the alert state follows at once."""
     if not StockItem.objects.filter(pk=item_id).exists():

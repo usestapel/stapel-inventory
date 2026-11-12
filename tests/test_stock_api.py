@@ -20,7 +20,7 @@ class TestGuestStance:
     @pytest.mark.parametrize("method,path", [
         ("get", "/locations/"), ("post", "/locations/"), ("get", "/stock/"),
         ("post", "/stock/receive/"), ("post", "/stock/adjust/"), ("post", "/stock/transfer/"),
-        ("get", "/movements/"), ("patch", "/stock/1/"), ("patch", "/locations/main/"),
+        ("get", "/movements/"), ("get", "/stock/1/"), ("patch", "/stock/1/"), ("patch", "/locations/main/"),
     ])
     def test_staff_only(self, method, path, api_client, client_for, user):
         assert getattr(api_client, method)(f"{V1}{path}", {}, format="json").status_code in (401, 403)
@@ -191,3 +191,14 @@ class TestMovements:
         item = StockItem.objects.get()
         total = sum(StockMovement.objects.filter(stock_item=item).values_list("on_hand_delta", flat=True))
         assert total == item.on_hand == 8
+
+
+class TestStockDetail:
+    def test_staff_reads_one_item(self, staff_client):
+        item = stock_of("a", 4)
+        body = staff_client.get(f"{V1}/stock/{item.pk}/").json()
+        assert (body["purchasable_key"], body["on_hand"]) == ("a", 4)
+
+    def test_unknown_item_is_404(self, staff_client):
+        resp = staff_client.get(f"{V1}/stock/999999/")
+        assert resp.status_code == 404 and resp.json()["localizable_error"] == "error.404.stock_item_not_found"

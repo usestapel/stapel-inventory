@@ -156,6 +156,7 @@ of its default-location item (else its first candidate) applies.
 | `GET locations/`, `POST locations/` | staff | `LocationRequest` → `LocationResponse` |
 | `PATCH locations/{code}/` | staff | `PatchedLocationUpdateRequest` → `LocationResponse` |
 | `GET stock/` | staff | `?purchasable_type&purchasable_key&location&alert_state` → `StockItemPage` (anchor) |
+| `GET stock/{id}/` | staff | → `StockItemResponse` (404 `stock_item_not_found`) |
 | `PATCH stock/{id}/` | staff | `PatchedStockItemUpdateRequest {low_stock_threshold, oversell_policy}` → `StockItemResponse` |
 | `POST stock/receive/` | staff | `StockReceiveRequest {purchasable_type, purchasable_key, location?, quantity, reason?}` → `StockItemResponse` |
 | `POST stock/adjust/` | staff | `StockAdjustRequest {…, delta | on_hand, reason}` → `StockItemResponse` |
