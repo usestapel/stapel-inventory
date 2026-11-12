@@ -172,6 +172,19 @@
         "note": "An item that was out can be sold again",
         "note_key": "flow.inventory.stock.step.6.note",
         "ref": "inventory.stock.back_in_stock"
+      },
+      {
+        "kind": "http",
+        "order": 6,
+        "note": "Open one stock item",
+        "note_key": "flow.inventory.stock.step.6.note",
+        "ref": "stapel_inventory.views.StockDetailView.get",
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/inventory/api/v1/stock/<int:item_id>/"
+          }
+        ]
       }
     ]
   }

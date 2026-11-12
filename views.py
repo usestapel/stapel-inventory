@@ -193,6 +193,7 @@ class StockDetailView(_StaffView):
     response_serializer_class = StockItemResponseSerializer
 
     @extend_schema(operation_id="inventory_stock_retrieve", responses={200: StockItemResponseSerializer})
+    @flow_step(STOCK, order=6, note="Open one stock item")
     def get(self, request, item_id):
         return self._item_response(stock_service.get_item(item_id))
 
