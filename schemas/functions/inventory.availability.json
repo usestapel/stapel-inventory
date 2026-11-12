@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "inventory.availability",
+  "description": "Exact availability of a keyed batch of one purchasable type (internal: numbers, policy, per location). available = on_hand - active unexpired holds, over the locations the ALLOCATION strategy sells from (or the one location named). An untracked key answers tracked=false, available=null, in_stock unless TRACK_UNKNOWN=deny. At most MAX_AVAILABILITY_KEYS keys. Output ($defs.response): {items: {key: item}}.",
+  "type": "object",
+  "properties": {
+    "purchasable_type": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 32
+    },
+    "keys": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 255
+      }
+    },
+    "location": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 32
+    }
+  },
+  "required": [
+    "purchasable_type",
+    "keys"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "response": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "tracked": {
+                "type": "boolean"
+              },
+              "on_hand": {
+                "type": "integer"
+              },
+              "held": {
+                "type": "integer"
+              },
+              "available": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "in_stock": {
+                "type": "boolean"
+              },
+              "policy": {
+                "type": "string",
+                "enum": [
+                  "deny",
+                  "backorder"
+                ]
+              },
+              "low_stock": {
+                "type": "boolean"
+              },
+              "locations": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "on_hand": {
+                      "type": "integer"
+                    },
+                    "available": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "on_hand",
+                    "available"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "tracked",
+              "on_hand",
+              "held",
+              "available",
+              "in_stock",
+              "policy",
+              "low_stock",
+              "locations"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

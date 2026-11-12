@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "inventory.stock.low",
+  "description": "A stock item's available units fell to its low-stock threshold or below (and above zero). Fires once per transition (ok -> low, or out -> low together with back_in_stock), never per sale. Key = stock item id.",
+  "type": "object",
+  "properties": {
+    "stock_item_id": {
+      "type": "string"
+    },
+    "purchasable_type": {
+      "type": "string",
+      "maxLength": 32
+    },
+    "purchasable_key": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "location": {
+      "type": "string",
+      "maxLength": 32
+    },
+    "on_hand": {
+      "type": "integer"
+    },
+    "available": {
+      "type": "integer"
+    },
+    "threshold": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "stock_item_id",
+    "purchasable_type",
+    "purchasable_key",
+    "location",
+    "on_hand",
+    "available",
+    "threshold"
+  ],
+  "additionalProperties": false
+}

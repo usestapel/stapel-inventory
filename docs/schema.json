@@ -1,0 +1,1125 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "",
+    "version": "0.0.0"
+  },
+  "paths": {
+    "/inventory/api/v1/availability/": {
+      "get": {
+        "operationId": "inventory_availability_retrieve",
+        "description": "Availability of a batch of keys of one purchasable type, as the public may see it.\n\n**Permissions:** `AllowAny`",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "keys",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Purchasable keys (repeatable).",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "purchasable_type",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "JWTCookieAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/inventory/api/v1/locations/": {
+      "get": {
+        "operationId": "inventory_locations_list",
+        "description": "Renders a service refusal as the fleet error envelope.\n\n**Permissions:** `IsStaffUser`",
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "JWTCookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LocationResponse"
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "operationId": "inventory_locations_create",
+        "description": "Renders a service refusal as the fleet error envelope.\n\n**Permissions:** `IsStaffUser`",
+        "tags": [
+          "Inventory"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocationRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/LocationRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/LocationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTCookieAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/inventory/api/v1/locations/{code}/": {
+      "patch": {
+        "operationId": "inventory_locations_partial_update",
+        "description": "Renders a service refusal as the fleet error envelope.\n\n**Permissions:** `IsStaffUser`",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Inventory"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchedLocationUpdateRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchedLocationUpdateRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchedLocationUpdateRequest"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWTCookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/inventory/api/v1/movements/": {
+      "get": {
+        "operationId": "inventory_movements_list",
+        "description": "Renders a service refusal as the fleet error envelope.\n\n**Permissions:** `IsStaffUser`",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "anchor",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Opaque anchor from next_anchor/prev_anchor (exclusive)."
+          },
+          {
+            "in": "query",
+            "name": "direction",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "next",
+                "prev"
+              ]
+            },
+            "description": "Walk direction from the anchor."
+          },
+          {
+            "in": "query",
+            "name": "kind",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "adjust",
+                "commit",
+                "hold",
+                "receipt",
+                "release",
+                "restock",
+                "transfer"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page size, default 50, max 200."
+          },
+          {
+            "in": "query",
+            "name": "purchasable_key",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "purchasable_type",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "stock_item",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "JWTCookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockMovementPage"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/inventory/api/v1/stock/": {
+      "get": {
+        "operationId": "inventory_stock_list",
+        "description": "Renders a service refusal as the fleet error envelope.\n\n**Permissions:** `IsStaffUser`",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "alert_state",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "low",
+                "ok",
+                "out"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "anchor",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Opaque anchor from next_anchor/prev_anchor (exclusive)."
+          },
+          {
+            "in": "query",
+            "name": "direction",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "next",
+                "prev"
+              ]
+            },
+            "description": "Walk direction from the anchor."
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page size, default 50, max 200."
+          },
+          {
+            "in": "query",
+            "name": "location",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "purchasable_key",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "purchasable_type",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "JWTCookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockItemPage"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/inventory/api/v1/stock/{item_id}/": {
+      "patch": {
+        "operationId": "inventory_stock_partial_update",
+        "description": "Renders a service refusal as the fleet error envelope.\n\n**Permissions:** `IsStaffUser`",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Inventory"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchedStockItemUpdateRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchedStockItemUpdateRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchedStockItemUpdateRequest"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWTCookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockItemResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/inventory/api/v1/stock/adjust/": {
+      "post": {
+        "operationId": "inventory_stock_adjust",
+        "description": "Renders a service refusal as the fleet error envelope.\n\n**Permissions:** `IsStaffUser`",
+        "tags": [
+          "Inventory"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StockAdjustRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/StockAdjustRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/StockAdjustRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTCookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockItemResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/inventory/api/v1/stock/receive/": {
+      "post": {
+        "operationId": "inventory_stock_receive",
+        "description": "Renders a service refusal as the fleet error envelope.\n\n**Permissions:** `IsStaffUser`",
+        "tags": [
+          "Inventory"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StockReceiveRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/StockReceiveRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/StockReceiveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTCookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockItemResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/inventory/api/v1/stock/transfer/": {
+      "post": {
+        "operationId": "inventory_stock_transfer",
+        "description": "Renders a service refusal as the fleet error envelope.\n\n**Permissions:** `IsStaffUser`",
+        "tags": [
+          "Inventory"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StockTransferRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/StockTransferRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/StockTransferRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTCookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockTransferResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AlertStateEnum": {
+        "enum": [
+          "ok",
+          "low",
+          "out"
+        ],
+        "type": "string",
+        "description": "* `ok` - OK\n* `low` - Low\n* `out` - Out of stock"
+      },
+      "AvailabilityItem": {
+        "type": "object",
+        "properties": {
+          "purchasable_type": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "purchasable_key": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "state": {
+            "$ref": "#/components/schemas/AvailabilityStateEnum"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true,
+            "description": "Units available; only under PUBLIC_AVAILABILITY='exact', else null."
+          }
+        },
+        "required": [
+          "purchasable_key",
+          "purchasable_type",
+          "quantity",
+          "state"
+        ]
+      },
+      "AvailabilityResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AvailabilityItem"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "AvailabilityStateEnum": {
+        "enum": [
+          "in_stock",
+          "few_left",
+          "out_of_stock",
+          "backorder",
+          "untracked"
+        ],
+        "type": "string",
+        "description": "* `in_stock` - in_stock\n* `few_left` - few_left\n* `out_of_stock` - out_of_stock\n* `backorder` - backorder\n* `untracked` - untracked"
+      },
+      "BlankEnum": {
+        "enum": [
+          ""
+        ]
+      },
+      "LocationRequest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 32,
+            "pattern": "^[-a-zA-Z0-9_]+$"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "priority": {
+            "type": "integer",
+            "maximum": 10000,
+            "minimum": -10000,
+            "default": 100
+          },
+          "is_default": {
+            "type": "boolean",
+            "default": false
+          },
+          "active": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ]
+      },
+      "LocationResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 32,
+            "pattern": "^[-a-zA-Z0-9_]+$"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "priority": {
+            "type": "integer"
+          },
+          "is_default": {
+            "type": "boolean"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "active",
+          "code",
+          "is_default",
+          "name",
+          "priority"
+        ]
+      },
+      "MovementKindEnum": {
+        "enum": [
+          "receipt",
+          "adjust",
+          "hold",
+          "commit",
+          "release",
+          "transfer",
+          "restock"
+        ],
+        "type": "string",
+        "description": "* `receipt` - Receipt\n* `adjust` - Adjustment\n* `hold` - Hold\n* `commit` - Commit\n* `release` - Release\n* `transfer` - Transfer\n* `restock` - Restock"
+      },
+      "OversellPolicyEnum": {
+        "enum": [
+          "deny",
+          "backorder"
+        ],
+        "type": "string",
+        "description": "* `` - Inherit the setting\n* `deny` - Deny\n* `backorder` - Backorder"
+      },
+      "PatchedLocationUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "priority": {
+            "type": "integer",
+            "maximum": 10000,
+            "minimum": -10000
+          },
+          "is_default": {
+            "type": "boolean"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PatchedStockItemUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "low_stock_threshold": {
+            "type": "integer",
+            "maximum": 1000000000,
+            "minimum": 0,
+            "nullable": true
+          },
+          "oversell_policy": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/OversellPolicyEnum"
+              },
+              {
+                "$ref": "#/components/schemas/BlankEnum"
+              }
+            ]
+          }
+        }
+      },
+      "StockAdjustRequest": {
+        "type": "object",
+        "properties": {
+          "purchasable_type": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "purchasable_key": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "location": {
+            "oneOf": [
+              {
+                "type": "string",
+                "default": "",
+                "maxLength": 32,
+                "pattern": "^[-a-zA-Z0-9_]+$"
+              },
+              {
+                "type": "string",
+                "maxLength": 0
+              }
+            ]
+          },
+          "delta": {
+            "type": "integer",
+            "maximum": 1000000000,
+            "minimum": -1000000000,
+            "description": "Signed change; give this or on_hand."
+          },
+          "on_hand": {
+            "type": "integer",
+            "maximum": 1000000000,
+            "minimum": 0,
+            "description": "The counted quantity; give this or delta."
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "purchasable_key",
+          "purchasable_type",
+          "reason"
+        ]
+      },
+      "StockItemPage": {
+        "type": "object",
+        "description": "The anchor envelope of the stock list (schema only — the paginator builds it).",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StockItemResponse"
+            }
+          },
+          "next_anchor": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 64
+          },
+          "prev_anchor": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 64
+          },
+          "has_next": {
+            "type": "boolean"
+          },
+          "has_prev": {
+            "type": "boolean"
+          },
+          "count": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "count",
+          "has_next",
+          "has_prev",
+          "items",
+          "next_anchor",
+          "prev_anchor"
+        ]
+      },
+      "StockItemResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "purchasable_type": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "purchasable_key": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 32,
+            "pattern": "^[-a-zA-Z0-9_]+$"
+          },
+          "on_hand": {
+            "type": "integer"
+          },
+          "held": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "available": {
+            "type": "integer"
+          },
+          "low_stock_threshold": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          },
+          "oversell_policy": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/OversellPolicyEnum"
+              },
+              {
+                "$ref": "#/components/schemas/BlankEnum"
+              }
+            ]
+          },
+          "alert_state": {
+            "$ref": "#/components/schemas/AlertStateEnum"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "alert_state",
+          "available",
+          "held",
+          "id",
+          "location",
+          "low_stock_threshold",
+          "on_hand",
+          "oversell_policy",
+          "purchasable_key",
+          "purchasable_type",
+          "updated_at"
+        ]
+      },
+      "StockMovementPage": {
+        "type": "object",
+        "description": "The anchor envelope of the ledger (schema only — the paginator builds it).",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StockMovementResponse"
+            }
+          },
+          "next_anchor": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 64
+          },
+          "prev_anchor": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 64
+          },
+          "has_next": {
+            "type": "boolean"
+          },
+          "has_prev": {
+            "type": "boolean"
+          },
+          "count": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "count",
+          "has_next",
+          "has_prev",
+          "items",
+          "next_anchor",
+          "prev_anchor"
+        ]
+      },
+      "StockMovementResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "stock_item": {
+            "type": "integer"
+          },
+          "purchasable_type": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "purchasable_key": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 32,
+            "pattern": "^[-a-zA-Z0-9_]+$"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/MovementKindEnum"
+          },
+          "on_hand_delta": {
+            "type": "integer"
+          },
+          "held_delta": {
+            "type": "integer"
+          },
+          "on_hand_after": {
+            "type": "integer"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "ref_type": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "ref_key": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "actor_id": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "actor_id",
+          "created_at",
+          "held_delta",
+          "id",
+          "kind",
+          "location",
+          "on_hand_after",
+          "on_hand_delta",
+          "purchasable_key",
+          "purchasable_type",
+          "reason",
+          "ref_key",
+          "ref_type",
+          "stock_item"
+        ]
+      },
+      "StockReceiveRequest": {
+        "type": "object",
+        "properties": {
+          "purchasable_type": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "purchasable_key": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "location": {
+            "oneOf": [
+              {
+                "type": "string",
+                "default": "",
+                "maxLength": 32,
+                "pattern": "^[-a-zA-Z0-9_]+$"
+              },
+              {
+                "type": "string",
+                "maxLength": 0
+              }
+            ]
+          },
+          "quantity": {
+            "type": "integer",
+            "maximum": 1000000000,
+            "minimum": 1
+          },
+          "reason": {
+            "type": "string",
+            "default": "",
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "purchasable_key",
+          "purchasable_type",
+          "quantity"
+        ]
+      },
+      "StockTransferRequest": {
+        "type": "object",
+        "properties": {
+          "purchasable_type": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "purchasable_key": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "from_location": {
+            "type": "string",
+            "maxLength": 32,
+            "pattern": "^[-a-zA-Z0-9_]+$"
+          },
+          "to_location": {
+            "type": "string",
+            "maxLength": 32,
+            "pattern": "^[-a-zA-Z0-9_]+$"
+          },
+          "quantity": {
+            "type": "integer",
+            "maximum": 1000000000,
+            "minimum": 1
+          },
+          "reason": {
+            "type": "string",
+            "default": "",
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "from_location",
+          "purchasable_key",
+          "purchasable_type",
+          "quantity",
+          "to_location"
+        ]
+      },
+      "StockTransferResponse": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "$ref": "#/components/schemas/StockItemResponse"
+          },
+          "target": {
+            "$ref": "#/components/schemas/StockItemResponse"
+          }
+        },
+        "required": [
+          "source",
+          "target"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "JWTCookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "stapel_jwt",
+        "description": "JWT token stored in cookie. Login via /auth/admin/ to get the cookie."
+      }
+    }
+  }
+}

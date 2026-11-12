@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "orders.order.placed",
+  "description": "Consumed only under DECREMENT_ON_ORDER_PLACED (an orders without checkout hooks): each line decrements stock, idempotent on order_id. Only the fields read here are constrained.",
+  "type": "object",
+  "properties": {
+    "order_id": {
+      "type": "string"
+    },
+    "lines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "purchasable_type": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "purchasable_key": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "purchasable_type",
+          "purchasable_key",
+          "quantity"
+        ]
+      }
+    }
+  },
+  "required": [
+    "order_id",
+    "lines"
+  ]
+}

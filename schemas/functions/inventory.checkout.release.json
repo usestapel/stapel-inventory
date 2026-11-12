@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "inventory.checkout.release",
+  "description": "Orders checkout hook (release): a failed checkout, an orphan, or a cancelled order. An active hold is released; a committed hold released with reason cancelled is restocked (RESTOCK_ON_CANCEL). An unknown key answers ok. token may be null. Idempotent. Output ($defs.response): {ok, token, errors}.",
+  "type": "object",
+  "properties": {
+    "attempt_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "token": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "order_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "checkout_failed",
+        "cancelled",
+        "orphaned"
+      ]
+    }
+  },
+  "required": [
+    "attempt_key"
+  ],
+  "additionalProperties": true,
+  "$defs": {
+    "response": {
+      "type": "object",
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "token": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "pattern": "^error\\.[0-9]{3}\\.[a-z0-9_]+$"
+              },
+              "field": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "params": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "code",
+              "field",
+              "params"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "ok",
+        "token",
+        "errors"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

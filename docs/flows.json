@@ -1,0 +1,178 @@
+[
+  {
+    "id": "inventory.shop",
+    "title": "See whether an item is in stock",
+    "title_key": "flow.inventory.shop.title",
+    "description": "A visitor opens a product page or a catalogue; the page asks for the availability of the items it shows and renders in stock, a few left, out of stock or on backorder. At checkout the order holds the units under a row lock, so two shoppers racing for the last unit end as one order and one 'only 0 left'.",
+    "description_key": "flow.inventory.shop.description",
+    "actors": [
+      "Visitor",
+      "Shopper"
+    ],
+    "steps": [
+      {
+        "kind": "http",
+        "order": 1,
+        "note": "The page asks whether its items are in stock",
+        "note_key": "flow.inventory.shop.step.1.note",
+        "ref": "stapel_inventory.views.AvailabilityView.get",
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/inventory/api/v1/availability/"
+          }
+        ]
+      },
+      {
+        "kind": "action",
+        "order": 3,
+        "note": "The last unit sold: staff and storefronts learn it once",
+        "note_key": "flow.inventory.shop.step.3.note",
+        "ref": "inventory.stock.out"
+      }
+    ]
+  },
+  {
+    "id": "inventory.stock",
+    "title": "Keep stock right",
+    "title_key": "flow.inventory.stock.title",
+    "description": "Staff receive deliveries, correct counts with a reason, move units between locations and set low-stock thresholds; every change is a ledger row and the shelf count is the sum of the ledger.",
+    "description_key": "flow.inventory.stock.description",
+    "actors": [
+      "Staff"
+    ],
+    "steps": [
+      {
+        "kind": "http",
+        "order": 1,
+        "note": "See the locations stock sits in",
+        "note_key": "flow.inventory.stock.step.1.note",
+        "ref": "stapel_inventory.views.LocationListView.get",
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/inventory/api/v1/locations/"
+          }
+        ]
+      },
+      {
+        "kind": "http",
+        "order": 2,
+        "note": "Rename, reprioritise, switch off or make a location the default",
+        "note_key": "flow.inventory.stock.step.2.note",
+        "ref": "stapel_inventory.views.LocationDetailView.patch",
+        "endpoints": [
+          {
+            "method": "PATCH",
+            "path": "/inventory/api/v1/locations/<slug:code>/"
+          }
+        ]
+      },
+      {
+        "kind": "http",
+        "order": 2,
+        "note": "Add a warehouse or a shop floor",
+        "note_key": "flow.inventory.stock.step.2.note",
+        "ref": "stapel_inventory.views.LocationListView.post",
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/inventory/api/v1/locations/"
+          }
+        ]
+      },
+      {
+        "kind": "http",
+        "order": 2,
+        "note": "Receive a delivery",
+        "note_key": "flow.inventory.stock.step.2.note",
+        "ref": "stapel_inventory.views.StockReceiveView.post",
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/inventory/api/v1/stock/receive/"
+          }
+        ]
+      },
+      {
+        "kind": "http",
+        "order": 3,
+        "note": "Correct a count, with a reason",
+        "note_key": "flow.inventory.stock.step.3.note",
+        "ref": "stapel_inventory.views.StockAdjustView.post",
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/inventory/api/v1/stock/adjust/"
+          }
+        ]
+      },
+      {
+        "kind": "http",
+        "order": 3,
+        "note": "Walk the stock list, filter what runs low",
+        "note_key": "flow.inventory.stock.step.3.note",
+        "ref": "stapel_inventory.views.StockListView.get",
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/inventory/api/v1/stock/"
+          }
+        ]
+      },
+      {
+        "kind": "http",
+        "order": 4,
+        "note": "Set a low-stock threshold or the oversell policy of one item",
+        "note_key": "flow.inventory.stock.step.4.note",
+        "ref": "stapel_inventory.views.StockDetailView.patch",
+        "endpoints": [
+          {
+            "method": "PATCH",
+            "path": "/inventory/api/v1/stock/<int:item_id>/"
+          }
+        ]
+      },
+      {
+        "kind": "http",
+        "order": 4,
+        "note": "Move units between locations",
+        "note_key": "flow.inventory.stock.step.4.note",
+        "ref": "stapel_inventory.views.StockTransferView.post",
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/inventory/api/v1/stock/transfer/"
+          }
+        ]
+      },
+      {
+        "kind": "action",
+        "order": 5,
+        "note": "A shelf reached its low-stock threshold",
+        "note_key": "flow.inventory.stock.step.5.note",
+        "ref": "inventory.stock.low"
+      },
+      {
+        "kind": "http",
+        "order": 5,
+        "note": "Read the ledger behind a count",
+        "note_key": "flow.inventory.stock.step.5.note",
+        "ref": "stapel_inventory.views.MovementListView.get",
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/inventory/api/v1/movements/"
+          }
+        ]
+      },
+      {
+        "kind": "action",
+        "order": 6,
+        "note": "An item that was out can be sold again",
+        "note_key": "flow.inventory.stock.step.6.note",
+        "ref": "inventory.stock.back_in_stock"
+      }
+    ]
+  }
+]

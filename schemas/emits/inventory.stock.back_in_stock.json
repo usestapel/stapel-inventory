@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "inventory.stock.back_in_stock",
+  "description": "A stock item that was out of stock has available units again (a receipt, a transfer, a released hold). Key = stock item id; a back-in-stock subscriber is a host's.",
+  "type": "object",
+  "properties": {
+    "stock_item_id": {
+      "type": "string"
+    },
+    "purchasable_type": {
+      "type": "string",
+      "maxLength": 32
+    },
+    "purchasable_key": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "location": {
+      "type": "string",
+      "maxLength": 32
+    },
+    "on_hand": {
+      "type": "integer"
+    },
+    "available": {
+      "type": "integer"
+    },
+    "threshold": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "stock_item_id",
+    "purchasable_type",
+    "purchasable_key",
+    "location",
+    "on_hand",
+    "available",
+    "threshold"
+  ],
+  "additionalProperties": false
+}

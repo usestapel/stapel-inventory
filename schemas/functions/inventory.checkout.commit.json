@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "inventory.checkout.commit",
+  "description": "Orders checkout hook (commit), called after the order transaction commits and retried until ok. Turns the hold of attempt_key into a decrement of on_hand; a hold that already expired is decremented anyway (the order is the fact; inventory.stock.oversold when a deny item goes below zero); a hold released by a cancel stays released. token may be null. Idempotent. Output ($defs.response): {ok, token, errors}.",
+  "type": "object",
+  "properties": {
+    "attempt_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "token": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "order_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "user_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "attempt_key"
+  ],
+  "additionalProperties": true,
+  "$defs": {
+    "response": {
+      "type": "object",
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "token": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "pattern": "^error\\.[0-9]{3}\\.[a-z0-9_]+$"
+              },
+              "field": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "params": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "code",
+              "field",
+              "params"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "ok",
+        "token",
+        "errors"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

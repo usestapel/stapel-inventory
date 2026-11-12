@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "inventory.checkout.reserve",
+  "description": "Orders checkout hook (reserve): the adjuster request plus attempt_key. Holds stock for every tracked line or nothing (all-or-nothing, row locks in ascending id order). Idempotent on attempt_key: a live hold with the same lines answers the same token; a released or expired hold reserves anew. Output ($defs.response): {ok, token, errors[{code, field, params}]}; refusal codes error.409.insufficient_stock (params index, purchasable_type, purchasable_key, requested, available) and error.409.stock_not_tracked.",
+  "type": "object",
+  "properties": {
+    "attempt_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "user_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "currency": {
+      "type": "string"
+    },
+    "subtotal": {
+      "type": "string"
+    },
+    "lines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "purchasable_type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32
+          },
+          "purchasable_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "unit_price": {
+            "type": "string"
+          },
+          "line_total": {
+            "type": "string"
+          },
+          "attrs": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "index",
+          "purchasable_type",
+          "purchasable_key",
+          "quantity"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "adjustments_so_far": {
+      "type": "array"
+    },
+    "context": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "attempt_key",
+    "lines"
+  ],
+  "additionalProperties": true,
+  "$defs": {
+    "response": {
+      "type": "object",
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "token": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "pattern": "^error\\.[0-9]{3}\\.[a-z0-9_]+$"
+              },
+              "field": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "params": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "code",
+              "field",
+              "params"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "ok",
+        "token",
+        "errors"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

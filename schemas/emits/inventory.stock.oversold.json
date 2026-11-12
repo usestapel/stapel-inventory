@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "inventory.stock.oversold",
+  "description": "A commit drove a deny-policy stock item below zero available: its hold had expired before the order's commit arrived, and the order is the fact. oversold = the shortfall; reference = the order id (or the hold id). Key = stock item id.",
+  "type": "object",
+  "properties": {
+    "stock_item_id": {
+      "type": "string"
+    },
+    "purchasable_type": {
+      "type": "string",
+      "maxLength": 32
+    },
+    "purchasable_key": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "location": {
+      "type": "string",
+      "maxLength": 32
+    },
+    "on_hand": {
+      "type": "integer"
+    },
+    "available": {
+      "type": "integer"
+    },
+    "threshold": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "oversold": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "reference": {
+      "type": "string",
+      "maxLength": 128
+    }
+  },
+  "required": [
+    "stock_item_id",
+    "purchasable_type",
+    "purchasable_key",
+    "location",
+    "on_hand",
+    "available",
+    "threshold",
+    "oversold",
+    "reference"
+  ],
+  "additionalProperties": false
+}

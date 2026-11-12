@@ -1,0 +1,164 @@
+{
+  "module": "stapel-inventory",
+  "version": "0.1.0",
+  "provides": "Stock per location for opaque purchasables (the orders purchasable pair), an append-only movement ledger whose sum is on_hand, and checkout holds with a TTL. Plugs into stapel-orders as a checkout hook (reserve / commit / release, idempotent on the checkout attempt key): a reserve locks the stock rows in ascending id order and re-counts availability under the lock, all-or-nothing across lines, so two shoppers racing for the last unit end as one order and one error.409.insufficient_stock. Allocation across locations is a strategy (single_default, priority); oversell is an axis (deny, backorder) with a per-item override; untracked purchasables pass through. A public availability endpoint discloses in-stock / few-left / out-of-stock per a policy; staff receive, adjust with a reason, transfer and import CSV. Low-stock, out-of-stock, back-in-stock and oversold facts fire once per transition. Beat tasks expire holds of crashed checkouts and reconcile the cache with the ledger.",
+  "axes": [
+    {
+      "key": "ALLOCATION",
+      "kind": "enum",
+      "default": "single_default",
+      "group": "inventory.allocation",
+      "gates": {
+        "operations": [],
+        "co_gates": [],
+        "behavior": "single_default: availability and reserves count the default location only; priority: they count every active location ordered by priority."
+      },
+      "curated": {
+        "summary": "single_default (default): only the default location's stock is sold; other locations are storage you transfer from. priority: every active location sells, highest priority first, and one order line may be split across locations. Values: single_default, priority.",
+        "business_label": "Which warehouse sells"
+      }
+    },
+    {
+      "key": "OVERSELL",
+      "kind": "enum",
+      "default": "deny",
+      "group": "inventory.checkout",
+      "gates": {
+        "operations": [],
+        "co_gates": [],
+        "behavior": "deny: reserve answers error.409.insufficient_stock; backorder: the remainder is held as backordered and on_hand goes negative on commit."
+      },
+      "curated": {
+        "summary": "deny (default): checkout refuses more units than are available. backorder: the order goes through and the missing units are backordered (stock goes negative). A single item can override it. Values: deny, backorder.",
+        "business_label": "Selling beyond stock"
+      }
+    },
+    {
+      "key": "TRACK_UNKNOWN",
+      "kind": "enum",
+      "default": "allow",
+      "group": "inventory.checkout",
+      "gates": {
+        "operations": [],
+        "co_gates": [],
+        "behavior": "allow: no hold line, never blocked; deny: reserve answers error.409.stock_not_tracked."
+      },
+      "curated": {
+        "summary": "allow (default): a product with no stock record is not stock-managed and always sells. deny: it cannot be sold until stock is recorded. Values: allow, deny.",
+        "business_label": "Items without stock records"
+      }
+    },
+    {
+      "key": "PUBLIC_AVAILABILITY",
+      "kind": "enum",
+      "default": "few_left",
+      "group": "inventory.storefront",
+      "gates": {
+        "operations": [],
+        "co_gates": [],
+        "behavior": "The public availability endpoint answers state (and quantity only under exact); the internal Function always answers numbers."
+      },
+      "curated": {
+        "summary": "few_left (default): in stock, a few left, out of stock or on backorder, never a number. exact: the number of units too. in_stock: only in or out of stock. Values: few_left, exact, in_stock.",
+        "business_label": "What shoppers see about stock"
+      }
+    },
+    {
+      "key": "RESTOCK_ON_CANCEL",
+      "kind": "bool",
+      "default": true,
+      "group": "inventory.checkout",
+      "gates": {
+        "operations": [],
+        "co_gates": [],
+        "behavior": "true: release with reason cancelled on a committed hold writes a restock movement; false: it is a no-op."
+      },
+      "curated": {
+        "summary": "true (default): when an order is cancelled its units go back on the shelf. false: staff return them by hand. Values: true, false.",
+        "business_label": "Cancelled orders return stock"
+      }
+    }
+  ],
+  "extension_points": [
+    {
+      "name": "ALLOCATION",
+      "kind": "strategy",
+      "summary": "Which locations a reserve takes stock from: single_default (default; only the default location sells), priority (active locations by priority, a line may split), a register_allocation name, or a dotted path to an AllocationStrategy. The strategy is pure: it sees the locked, counted candidates and answers allocations."
+    },
+    {
+      "name": "STAPEL_ORDERS['CHECKOUT_HOOKS']['inventory']",
+      "kind": "setting",
+      "summary": "The orders checkout hook entry shipped in stapel_inventory.preset.SETTINGS_DEFAULTS: reserve / commit / release Function names and order 100. Merge it under the project's STAPEL_ORDERS; nothing else wires stock into checkout."
+    },
+    {
+      "name": "STAPEL_INVENTORY_AVAILABILITY_PRESENTER / STAPEL_INVENTORY_STOCK_PRESENTER",
+      "kind": "presenter",
+      "summary": "Swap keys (STAPEL_SWAP) for the public availability presenter (where the disclosure policy is applied) and the staff stock/ledger presenter."
+    },
+    {
+      "name": "inventory.availability",
+      "kind": "comm_function",
+      "summary": "Exact availability for a keyed batch of one purchasable type (on_hand, held, available, policy, per location) for a listing page or another module; the public endpoint applies PUBLIC_AVAILABILITY on top."
+    },
+    {
+      "name": "inventory.stock.low / inventory.stock.out / inventory.stock.back_in_stock",
+      "kind": "comm_event",
+      "summary": "Emitted once per alert-state transition of a stock item (never per sale), in the transaction of the movement that caused it; a back-in-stock notification is a host subscriber."
+    },
+    {
+      "name": "inventory.stock.oversold",
+      "kind": "comm_event",
+      "summary": "A commit drove a deny item below zero because its hold had expired before the order's commit arrived; the order is the fact and staff must act."
+    }
+  ],
+  "surface": [
+    {
+      "name": "active_allocation",
+      "kind": "predicate",
+      "path": "stapel_inventory.allocation.active_allocation",
+      "intent": "The strategy the current settings select; ask it instead of reading the setting."
+    },
+    {
+      "name": "allocation_names",
+      "kind": "predicate",
+      "path": "stapel_inventory.allocation.allocation_names",
+      "intent": "The short names ALLOCATION accepts (built-ins plus registered); also the env vocabulary."
+    },
+    {
+      "name": "register_allocation",
+      "kind": "factory",
+      "path": "stapel_inventory.allocation.register_allocation",
+      "intent": "Register an allocation strategy under a short name ALLOCATION (and the environment) may choose; call it from an AppConfig.ready()."
+    },
+    {
+      "name": "reset_allocations",
+      "kind": "factory",
+      "path": "stapel_inventory.allocation.reset_allocations",
+      "intent": "Drop runtime registrations — a test lever."
+    },
+    {
+      "name": "resolve_allocation",
+      "kind": "gate_function",
+      "path": "stapel_inventory.allocation.resolve_allocation",
+      "intent": "Turn an ALLOCATION value (short name or dotted path) into a strategy instance; raises ImproperlyConfigured (check E001) for an unknown name."
+    }
+  ],
+  "operations_total": 10,
+  "requires": [
+    {
+      "module": "stapel-core",
+      "optional": false,
+      "reason": "comm bus (inventory.* facts, availability and checkout hook Functions, user.merged consumer), AnchorPagination, GDPR owner protocol, AppSettings"
+    },
+    {
+      "module": "stapel-orders",
+      "optional": true,
+      "reason": "calls the checkout hooks registered by stapel_inventory.preset.SETTINGS_DEFAULTS; without it the stock API, availability and facts still work"
+    },
+    {
+      "module": "stapel-auth",
+      "optional": true,
+      "reason": "a guest checkout's hold is keyed on a stapel-auth anonymous account; user.merged moves it to the account"
+    }
+  ]
+}
