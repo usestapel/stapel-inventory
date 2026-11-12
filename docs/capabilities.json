@@ -77,6 +77,21 @@
         "summary": "true (default): when an order is cancelled its units go back on the shelf. false: staff return them by hand. Values: true, false.",
         "business_label": "Cancelled orders return stock"
       }
+    },
+    {
+      "key": "MAX_AVAILABILITY_KEYS",
+      "kind": "enum",
+      "default": 100,
+      "group": "inventory.storefront",
+      "gates": {
+        "operations": [],
+        "co_gates": [],
+        "behavior": "len(keys) > MAX_AVAILABILITY_KEYS: 400 error.400.availability_too_many_keys {max, field: keys}."
+      },
+      "curated": {
+        "summary": "How many keys one availability request (GET availability/ or the inventory.availability Function) may ask for; more is refused with error.400.availability_too_many_keys, whose params.max carries this limit. A client pages its keys by it.",
+        "business_label": "Items per availability request"
+      }
     }
   ],
   "extension_points": [

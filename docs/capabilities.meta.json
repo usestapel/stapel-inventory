@@ -76,6 +76,11 @@
       "business_label": "Cancelled orders return stock",
       "summary": "true (default): when an order is cancelled its units go back on the shelf. false: staff return them by hand. Values: true, false.",
       "behavior": "true: release with reason cancelled on a committed hold writes a restock movement; false: it is a no-op."
+    },
+    "MAX_AVAILABILITY_KEYS": {
+      "business_label": "Items per availability request",
+      "summary": "How many keys one availability request (GET availability/ or the inventory.availability Function) may ask for; more is refused with error.400.availability_too_many_keys, whose params.max carries this limit. A client pages its keys by it.",
+      "behavior": "len(keys) > MAX_AVAILABILITY_KEYS: 400 error.400.availability_too_many_keys {max, field: keys}."
     }
   },
   "surface_roots": [

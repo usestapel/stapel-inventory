@@ -100,3 +100,16 @@ class TestPublicEndpoint:
     def test_no_keys_is_an_empty_answer(self, api_client):
         resp = api_client.get(f"{V1}/availability/", {"purchasable_type": "listing"})
         assert resp.status_code == 200 and resp.json() == {"items": []}
+
+
+def test_the_key_limit_is_discoverable():
+    """MAX_AVAILABILITY_KEYS is a capabilities axis (default from conf) and the refusal's params.max."""
+    import json
+    from pathlib import Path
+
+    from stapel_inventory.conf import DEFAULTS
+
+    caps = json.loads((Path(__file__).resolve().parent.parent / "docs" / "capabilities.json").read_text())
+    [axis] = [a for a in caps["axes"] if a["key"] == "MAX_AVAILABILITY_KEYS"]
+    assert axis["default"] == DEFAULTS["MAX_AVAILABILITY_KEYS"]
+    assert "params.max" in axis["curated"]["summary"]

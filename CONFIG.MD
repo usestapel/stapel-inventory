@@ -9,8 +9,8 @@ Every key is read through `inventory_settings` (`stapel_inventory.conf`,
 namespace `STAPEL_INVENTORY`). Resolution order per key:
 `settings.STAPEL_INVENTORY` dict → a flat Django setting of the same name →
 environment variable → the default below. `ALLOCATION`, `OVERSELL`,
-`TRACK_UNKNOWN`, `PUBLIC_AVAILABILITY` and `RESTOCK_ON_CANCEL` are CTO-facing
-config axes. The orders wiring is not a key of this namespace: it is the
+`TRACK_UNKNOWN`, `PUBLIC_AVAILABILITY`, `RESTOCK_ON_CANCEL` and
+`MAX_AVAILABILITY_KEYS` are CTO-facing config axes. The orders wiring is not a key of this namespace: it is the
 `STAPEL_ORDERS["CHECKOUT_HOOKS"]["inventory"]` entry shipped in
 `stapel_inventory.preset.SETTINGS_DEFAULTS`.
 

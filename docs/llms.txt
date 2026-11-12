@@ -2,13 +2,15 @@
 
 Stock per location for opaque purchasables (the orders purchasable pair), an append-only movement ledger whose sum is on_hand, and checkout holds with a TTL. Plugs into stapel-orders as a checkout hook (reserve / commit / release, idempotent on the checkout attempt key): a reserve locks the stock rows in ascending id order and re-counts availability under the lock, all-or-nothing across lines, so two shoppers racing for the last unit end as one order and one error.409.insufficient_stock. Allocation across locations is a strategy (single_default, priority); oversell is an axis (deny, backorder) with a per-item override; untracked purchasables pass through. A public availability endpoint discloses in-stock / few-left / out-of-stock per a policy; staff receive, adjust with a reason, transfer and import CSV. Low-stock, out-of-stock, back-in-stock and oversold facts fire once per transition. Beat tasks expire holds of crashed checkouts and reconcile the cache with the ledger.
 
-Contract: axes 5 · surface 5 · extension points 6 · operations 10 · error codes 53 · flows 2.
+Contract: axes 6 · surface 5 · extension points 6 · operations 10 · error codes 53 · flows 2.
 Generated from docs/capabilities.json by `stapel-llms-txt` — do not edit; drift-gated by `make contract-check`.
 
 ## Configuration axes — what a product switches on
 Settings keys; `default` is what you get by saying nothing. Turning an axis off unmounts the operations it gates.
 - ALLOCATION [enum, default "single_default"] — Which warehouse sells
   single_default (default): only the default location's stock is sold; other locations are storage you transfer from. priority: every active location sells, highest priority first, and one order line may be split across locations. Values: single_default, priority.
+- MAX_AVAILABILITY_KEYS [enum, default 100] — Items per availability request
+  How many keys one availability request (GET availability/ or the inventory.availability Function) may ask for; more is refused with error.400.availability_too_many_keys, whose params.max carries this limit. A client pages its keys by it.
 - OVERSELL [enum, default "deny"] — Selling beyond stock
   deny (default): checkout refuses more units than are available. backorder: the order goes through and the missing units are backordered (stock goes negative). A single item can override it. Values: deny, backorder.
 - PUBLIC_AVAILABILITY [enum, default "few_left"] — What shoppers see about stock

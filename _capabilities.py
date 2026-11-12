@@ -14,8 +14,10 @@ def main(argv=None):
     # CTO-facing axes, all behavioural (no endpoint is unmounted):
     # ALLOCATION (which locations sell), OVERSELL (deny | backorder),
     # TRACK_UNKNOWN (untracked items pass or are refused), PUBLIC_AVAILABILITY
-    # (what visitors see) and RESTOCK_ON_CANCEL.
-    axes = {"ALLOCATION", "OVERSELL", "TRACK_UNKNOWN", "PUBLIC_AVAILABILITY", "RESTOCK_ON_CANCEL"}
+    # (what visitors see), RESTOCK_ON_CANCEL and MAX_AVAILABILITY_KEYS (the
+    # batch limit a client must page by).
+    axes = {"ALLOCATION", "OVERSELL", "TRACK_UNKNOWN", "PUBLIC_AVAILABILITY", "RESTOCK_ON_CANCEL",
+            "MAX_AVAILABILITY_KEYS"}
     return run_capabilities_cli(
         argv,
         repo=Path(__file__).resolve().parent,
@@ -30,6 +32,7 @@ def main(argv=None):
                 "TRACK_UNKNOWN": "inventory.checkout",
                 "RESTOCK_ON_CANCEL": "inventory.checkout",
                 "PUBLIC_AVAILABILITY": "inventory.storefront",
+                "MAX_AVAILABILITY_KEYS": "inventory.storefront",
             }
         ),
         prog="stapel-inventory-capabilities",
