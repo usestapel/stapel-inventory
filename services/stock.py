@@ -61,14 +61,15 @@ def default_location() -> Location:
         return Location.objects.get(is_default=True)
 
 
-def location_by_code(code: str | None, *, for_write: bool = True) -> Location:
+def location_by_code(code: str | None, *, for_write: bool = True, field: str = "location") -> Location:
+    """The location named ``code`` (default: the default one); refusals name ``field``."""
     if not code:
         return default_location()
     location = Location.objects.filter(code=code).first()
     if location is None:
-        raise InventoryError(404, ERR_404_LOCATION_NOT_FOUND, {"code": code})
+        raise InventoryError(404, ERR_404_LOCATION_NOT_FOUND, {"code": code}, field=field)
     if for_write and not location.active:
-        raise InventoryError(409, ERR_409_LOCATION_INACTIVE, {"code": code})
+        raise InventoryError(409, ERR_409_LOCATION_INACTIVE, {"code": code}, field=field)
     return location
 
 
@@ -86,7 +87,7 @@ def create_location(values: dict) -> Location:
 
     default_location()
     if Location.objects.filter(code=values["code"]).exists():
-        raise InventoryError(409, ERR_409_LOCATION_EXISTS, {"code": values["code"]})
+        raise InventoryError(409, ERR_409_LOCATION_EXISTS, {"code": values["code"]}, field="code")
     try:
         with transaction.atomic():
             if values.get("is_default"):
@@ -96,20 +97,21 @@ def create_location(values: dict) -> Location:
                 is_default=bool(values.get("is_default")), active=values.get("active", True),
             )
     except IntegrityError:
-        raise InventoryError(409, ERR_409_LOCATION_EXISTS, {"code": values["code"]}) from None
+        raise InventoryError(409, ERR_409_LOCATION_EXISTS, {"code": values["code"]}, field="code") from None
 
 
 def update_location(code: str, values: dict) -> Location:
     from ..errors import ERR_409_DEFAULT_LOCATION_REQUIRED
 
-    location = location_by_code(code, for_write=False)
+    location = location_by_code(code, for_write=False, field="code")
+    switch = "active" if values.get("active") is False else "is_default"
     with transaction.atomic():
         location = Location.objects.select_for_update().get(pk=location.pk)
         if location.is_default and (values.get("active") is False or values.get("is_default") is False):
-            raise InventoryError(409, ERR_409_DEFAULT_LOCATION_REQUIRED, {"code": code})
+            raise InventoryError(409, ERR_409_DEFAULT_LOCATION_REQUIRED, {"code": code}, field=switch)
         if values.get("is_default") and not location.is_default:
             if values.get("active") is False or (not location.active and values.get("active") is not True):
-                raise InventoryError(409, ERR_409_DEFAULT_LOCATION_REQUIRED, {"code": code})
+                raise InventoryError(409, ERR_409_DEFAULT_LOCATION_REQUIRED, {"code": code}, field=switch)
             Location.objects.filter(is_default=True).update(is_default=False)
             location.is_default = True
         for field in ("name", "priority", "active"):
@@ -229,14 +231,15 @@ def adjust(purchasable_type, purchasable_key, location_code, *, delta=None, on_h
            actor_id) -> StockItem:
     """A correction by ``delta`` or a physical count (``on_hand``); never below zero."""
     if (delta is None) == (on_hand is None):
-        raise InventoryError(400, ERR_400_ADJUST_AMBIGUOUS)
+        raise InventoryError(400, ERR_400_ADJUST_AMBIGUOUS, field="delta")
     location = location_by_code(location_code)
     item = get_or_create_item(purchasable_type, purchasable_key, location)
     with mutate_and_emit() as emit:
         item = lock_items([item.pk])[item.pk]
         change = int(delta) if delta is not None else int(on_hand) - item.on_hand
         if change < 0 and item.on_hand + change < 0:
-            raise InventoryError(409, ERR_409_STOCK_WOULD_GO_NEGATIVE, {"on_hand": item.on_hand})
+            raise InventoryError(409, ERR_409_STOCK_WOULD_GO_NEGATIVE, {"on_hand": item.on_hand},
+                                 field="delta" if delta is not None else "on_hand")
         if change:
             write_movement(item, MovementKind.ADJUST, on_hand_delta=change, reason=reason,
                            actor_id=actor_id)
@@ -248,14 +251,16 @@ def transfer(purchasable_type, purchasable_key, from_code, to_code, quantity, *,
              actor_id) -> TransferResult:
     """Move units between locations; held units stay where they are held."""
     if from_code == to_code:
-        raise InventoryError(400, ERR_400_TRANSFER_SAME_LOCATION)
-    source_loc = location_by_code(from_code, for_write=False)
-    target_loc = location_by_code(to_code)
+        raise InventoryError(400, ERR_400_TRANSFER_SAME_LOCATION, field="to_location")
+    source_loc = location_by_code(from_code, for_write=False, field="from_location")
+    target_loc = location_by_code(to_code, field="to_location")
     source = StockItem.objects.filter(
         purchasable_type=purchasable_type, purchasable_key=purchasable_key, location=source_loc
     ).first()
     if source is None:
-        raise InventoryError(409, ERR_409_INSUFFICIENT_STOCK, {"available": 0})
+        raise InventoryError(409, ERR_409_INSUFFICIENT_STOCK, {
+            "purchasable_type": purchasable_type, "purchasable_key": purchasable_key,
+            "requested": int(quantity), "available": 0}, field="quantity")
     target = get_or_create_item(purchasable_type, purchasable_key, target_loc)
     ref = uuid.uuid4().hex
     with mutate_and_emit() as emit:
@@ -263,7 +268,9 @@ def transfer(purchasable_type, purchasable_key, from_code, to_code, quantity, *,
         source, target = locked[source.pk], locked[target.pk]
         available = source.on_hand - held_by_item([source.pk]).get(source.pk, 0)
         if int(quantity) > available:
-            raise InventoryError(409, ERR_409_INSUFFICIENT_STOCK, {"available": max(available, 0)})
+            raise InventoryError(409, ERR_409_INSUFFICIENT_STOCK, {
+                "purchasable_type": purchasable_type, "purchasable_key": purchasable_key,
+                "requested": int(quantity), "available": max(available, 0)}, field="quantity")
         write_movement(source, MovementKind.TRANSFER, on_hand_delta=-int(quantity), reason=reason,
                        ref_type="transfer", ref_key=ref, actor_id=actor_id)
         write_movement(target, MovementKind.TRANSFER, on_hand_delta=int(quantity), reason=reason,

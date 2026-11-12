@@ -7,6 +7,11 @@ Pre-1.0 semver: **minor = breaking**, patch = compatible.
 ## [0.1.0] - unreleased
 
 ### Added
+- Every domain refusal names its request field in `params.field`
+  (adjust: `delta` / `on_hand`; transfer: `from_location` / `to_location` /
+  `quantity`; locations: `code` / `active` / `is_default`; availability:
+  `keys`); a transfer's `insufficient_stock` also carries the purchasable and
+  `requested`.
 - Error params declared in `docs/errors.json`: `insufficient_stock` /
   `stock_not_tracked` list what the hook sends (`index, purchasable_type,
   purchasable_key, requested, available, field`) via `errors.ERROR_PARAMS`;

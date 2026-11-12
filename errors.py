@@ -42,6 +42,14 @@ STAPEL_INVENTORY_ERRORS = {
 ERROR_PARAMS = {
     ERR_409_INSUFFICIENT_STOCK: ("index", "purchasable_type", "purchasable_key", "requested", "field"),
     ERR_409_STOCK_NOT_TRACKED: ("index", "purchasable_type", "purchasable_key", "field"),
+    ERR_400_TOO_MANY_KEYS: ("field",),
+    ERR_400_ADJUST_AMBIGUOUS: ("field",),
+    ERR_400_TRANSFER_SAME_LOCATION: ("field",),
+    ERR_404_LOCATION_NOT_FOUND: ("field",),
+    ERR_409_LOCATION_INACTIVE: ("field",),
+    ERR_409_LOCATION_EXISTS: ("field",),
+    ERR_409_DEFAULT_LOCATION_REQUIRED: ("field",),
+    ERR_409_STOCK_WOULD_GO_NEGATIVE: ("field",),
 }
 
 #: Explicit remediation where the status heuristic would mislead.

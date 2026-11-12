@@ -131,7 +131,7 @@ class StockAdjustRequestSerializer(PurchasableFields):
 
     def validate(self, attrs):
         if ("delta" in attrs) == ("on_hand" in attrs):
-            raise StapelValidationError(ERR_400_ADJUST_AMBIGUOUS)
+            raise StapelValidationError(ERR_400_ADJUST_AMBIGUOUS, {"field": "delta"})
         return attrs
 
 

@@ -15,11 +15,17 @@ from __future__ import annotations
 class InventoryError(Exception):
     """A domain refusal with its HTTP status and i18n error key."""
 
-    def __init__(self, status: int, key: str, params: dict | None = None):
+    def __init__(self, status: int, key: str, params: dict | None = None, field: str | None = None):
         self.status = status
         self.key = key
         self.params = params or {}
+        #: The request field the refusal is about; HTTP answers carry it as ``params.field``.
+        self.field = field
         super().__init__(key)
+
+    @property
+    def envelope_params(self) -> dict:
+        return {**self.params, "field": self.field} if self.field else dict(self.params)
 
 
 __all__ = ["InventoryError"]

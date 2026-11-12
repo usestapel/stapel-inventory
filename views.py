@@ -44,7 +44,7 @@ class _InventoryView(StapelAPIView):
 
     def handle_exception(self, exc):
         if isinstance(exc, InventoryError):
-            return StapelErrorResponse(exc.status, exc.key, exc.params)
+            return StapelErrorResponse(exc.status, exc.key, exc.envelope_params)
         return super().handle_exception(exc)
 
     def _actor(self, request) -> str:
@@ -107,7 +107,7 @@ class AvailabilityView(_InventoryView):
         keys = [k for k in request.query_params.getlist("keys") if k]
         limit = int(inventory_settings.MAX_AVAILABILITY_KEYS)
         if len(keys) > limit:
-            raise InventoryError(400, ERR_400_TOO_MANY_KEYS, {"max": limit})
+            raise InventoryError(400, ERR_400_TOO_MANY_KEYS, {"max": limit}, field="keys")
         keys = [serializers.CharField(max_length=255).run_validation(k) for k in keys]
         entries = stock_service.availability(purchasable_type, keys)
         dto = get_availability_presenter()().present(purchasable_type, entries)

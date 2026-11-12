@@ -69,7 +69,7 @@ Paths are relative to `/inventory/api/v1/`.
 
 ## Error codes (53) — the StapelError envelope
 Render `t(code, params)`; branch UX on the remediation. Localized text lives in docs/errors.<lang>.md, not here.
-- error.400.availability_too_many_keys [400] fix_input {max}
+- error.400.availability_too_many_keys [400] fix_input {max,field}
 - error.400.bad_request [400] fix_input
 - error.400.captcha_invalid [400] retry
 - error.400.captcha_required [400] retry
@@ -86,8 +86,8 @@ Render `t(code, params)`; branch UX on the remediation. Localized text lives in 
 - error.400.field.required [400] fix_input {field}
 - error.400.field.unique [400] fix_input {field}
 - error.400.invalid_ad_id [400] fix_input
-- error.400.stock_adjust_ambiguous [400] fix_input
-- error.400.stock_transfer_same_location [400] fix_input
+- error.400.stock_adjust_ambiguous [400] fix_input {field}
+- error.400.stock_transfer_same_location [400] fix_input {field}
 - error.400.validation_error [400] fix_input
 - error.400.verification_failed [400] verify
 - error.400.verification_invalid_factor [400] verify
@@ -98,7 +98,7 @@ Render `t(code, params)`; branch UX on the remediation. Localized text lives in 
 - error.403.verification_enrollment_required [403] verify
 - error.403.verification_required [403] verify
 - error.404.ad_not_found [404] retry
-- error.404.location_not_found [404] retry {code}
+- error.404.location_not_found [404] retry {code,field}
 - error.404.not_found [404] retry
 - error.404.stock_item_not_found [404] retry
 - error.404.verification_challenge_not_found [404] verify
@@ -106,12 +106,12 @@ Render `t(code, params)`; branch UX on the remediation. Localized text lives in 
 - error.406.not_acceptable [406] retry
 - error.408.request_timeout [408] retry
 - error.409.conflict [409] fix_input
-- error.409.default_location_required [409] fix_input {code}
+- error.409.default_location_required [409] fix_input {code,field}
 - error.409.insufficient_stock [409] retry {available,index,purchasable_type,purchasable_key,requested,field}
-- error.409.location_exists [409] fix_input {code}
-- error.409.location_inactive [409] fix_input {code}
+- error.409.location_exists [409] fix_input {code,field}
+- error.409.location_inactive [409] fix_input {code,field}
 - error.409.stock_not_tracked [409] fix_input {index,purchasable_type,purchasable_key,field}
-- error.409.stock_would_go_negative [409] fix_input {on_hand}
+- error.409.stock_would_go_negative [409] fix_input {on_hand,field}
 - error.410.gone [410] retry
 - error.413.payload_too_large [413] retry
 - error.415.unsupported_media_type [415] retry
