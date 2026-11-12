@@ -7,6 +7,10 @@ Pre-1.0 semver: **minor = breaking**, patch = compatible.
 ## [0.1.0] - unreleased
 
 ### Added
+- README wiring snippets in the merge forms (the scaffold's
+  `_stapel_merge_preset_defaults` list, or a per-key hand merge); pasting
+  them never drops the host's `STAPEL_ORDERS` keys — executed against a
+  populated settings module by `tests/test_readme_wiring.py`.
 - Locations (a default one created on migrate), stock per
   `(purchasable_type, purchasable_key, location)` with an `on_hand` cache, an
   append-only movement ledger (receipt, adjust, hold, commit, release,
