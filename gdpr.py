@@ -1,8 +1,10 @@
 """GDPR for stapel-inventory — the ledger rule: the person goes, the numbers stay.
 
-Two columns name a person: ``StockHold.user_id`` (the shopper of a checkout)
-and ``StockMovement.actor_id`` (the staff member who received, adjusted or
-transferred). Erasure of an ``account`` replaces both with the fleet
+Three columns name a person: ``StockHold.user_id`` (the shopper's account,
+null for a guest), ``StockHold.actor_id`` (the acting account of the
+checkout, a guest's own id too) and ``StockMovement.actor_id`` (the staff
+member who received, adjusted or transferred). Erasure of an ``account``
+replaces them with the fleet
 pseudonym (``stapel_core.gdpr.pseudonymize``); quantities, kinds and
 references stay, so ``on_hand = Σ movements`` survives an erasure.
 """
@@ -15,6 +17,8 @@ class InventoryGDPRProvider(GDPRProvider):
     section = "inventory"
 
     def export(self, user_id) -> dict:
+        from django.db.models import Q
+
         from .models import StockHold, StockMovement
 
         user_id = str(user_id)
@@ -32,7 +36,7 @@ class InventoryGDPRProvider(GDPRProvider):
                         for line in h.lines.select_related("stock_item")
                     ],
                 }
-                for h in StockHold.objects.filter(user_id=user_id)
+                for h in StockHold.objects.filter(Q(user_id=user_id) | Q(actor_id=user_id)).order_by("id")
             ],
             "movements": [
                 {
@@ -71,6 +75,6 @@ def erase_subject(subject_type, subject_key, workspace_id=None):
     user_id = str(subject_key)
     pseudonym = pseudonymize(user_id)
     with transaction.atomic():
-        holds = StockHold.objects.filter(user_id=user_id).update(user_id=pseudonym)
+        holds = StockHold.objects.reassign_owner(user_id, pseudonym)
         movements = StockMovement.objects.reassign_actor(user_id, pseudonym)
     return {"holds": holds, "movements": movements}

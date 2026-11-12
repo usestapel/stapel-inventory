@@ -46,7 +46,9 @@ a sibling's table.
   `ref_key` ≤ 128 (`hold`/`<id>`, `transfer`/`<uuid>`, `order`/`<id>`),
   `actor_id` ≤ 64 (`str(user.pk)` or `"system"`), `created_at`.
 - **`StockHold`** `token` (uuid, unique), `attempt_key` ≤ 128 (unique — the
-  idempotency key), `user_id` ≤ 64 (nullable), `status` ∈ `active,
+  idempotency key), `user_id` ≤ 64 (nullable; null for a guest), `actor_id`
+  ≤ 64 (nullable; the acting account, a guest's own id too — the hold's
+  owner), `status` ∈ `active,
   committed, released, expired, returned`, `expires_at`, `reference` ≤ 64
   (the order id on commit), `release_reason` ≤ 32. **`StockHoldLine`** `hold`,
   `stock_item`, `line_index`, `quantity`, `backordered` (the part beyond
@@ -95,7 +97,9 @@ hand-wired host pastes it; upstream ask T-IN1):
 ```
 
 - `inventory.checkout.reserve` — payload = the adjuster request
-  (`currency, subtotal, user_id (null for a guest), lines[{index,
+  (`currency, subtotal, user_id (null for a guest), actor_id? (the acting
+  account, a guest's own id too; recorded on the hold, `user_id` when
+  absent; a commit fills a blank one), lines[{index,
   purchasable_type, purchasable_key, quantity, unit_price, line_total,
   attrs}], adjustments_so_far, context`) + `attempt_key` (lowercase UUID) →
   `{ok, token, errors}`. Lines of the same purchasable are summed. Refusals
@@ -199,7 +203,7 @@ but no inventory hook registered; W002 hold TTL not above orders'
 
 Suite on 3.12 and 3.14; `make contract`; `stapel-verify`; schema/migration
 lint; `emit_check`; checks with and without orders' settings; migration from
-zero; GDPR (export + erase of `StockHold.user_id`, `StockMovement.actor_id`);
+zero; GDPR (export + erase of `StockHold.user_id` / `.actor_id`, `StockMovement.actor_id`);
 concurrency (`tests/test_concurrency.py`): N threads × real transactions on a
 locking database — SQLite file database in `IMMEDIATE` mode locally (writers
 serialize on the database lock), Postgres row locks with

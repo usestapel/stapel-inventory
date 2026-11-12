@@ -31,5 +31,8 @@ Pre-1.0 semver: **minor = breaking**, patch = compatible.
   `inventory_housekeeping` command.
 - System checks E001–E006, W001–W002; GDPR owner (pseudonymizes holds and
   ledger actors); `user.merged` re-parent.
+- Holds record the payloads' `actor_id` (the acting account, a guest's own
+  id too; `user_id` when absent) next to `user_id` (null for a guest);
+  `user.merged` and GDPR export/erase cover holds keyed by either.
 - Concurrency suite with real threads on a locking database (SQLite
   `IMMEDIATE` locally, Postgres row locks in the CI `postgres` job).

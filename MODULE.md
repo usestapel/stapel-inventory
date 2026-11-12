@@ -86,7 +86,7 @@ Views inherit `StapelAPIView`; subclass, set `request_serializer_class` /
 | Function (provides) | `inventory.checkout.release` | `{attempt_key, token?, order_id?, reason}` → `{ok, token, errors}` | `schemas/functions/` |
 | Action (emits) | `inventory.stock.low` / `.out` / `.back_in_stock` | `{stock_item_id, purchasable_type, purchasable_key, location, on_hand, available, threshold}` | `schemas/emits/` |
 | Action (emits) | `inventory.stock.oversold` | the above + `{oversold, reference}` | `schemas/emits/` |
-| Action (consumes) | `user.merged` | `{from_user_id, into_user_id}` | `schemas/consumes/` |
+| Action (consumes) | `user.merged` | `{from_user_id, into_user_id}`; moves holds by `user_id` and `actor_id` | `schemas/consumes/` |
 | Action (consumes) | `orders.order.placed` | only under `DECREMENT_ON_ORDER_PLACED`; validated in the handler, never registered (it would replace the emitter's schema) | `schemas/consumes/` |
 | Action (consumes) | `user.deleted`, `gdpr.erasure.requested` | via `register_gdpr_owner("inventory", ["account"], …)` | core |
 

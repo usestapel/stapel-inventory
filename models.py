@@ -169,6 +169,16 @@ class StockMovement(models.Model):
         raise TypeError("StockMovement is append-only; write a compensating movement instead")
 
 
+class HoldQuerySet(models.QuerySet):
+    def reassign_owner(self, old: str, new: str) -> int:
+        """Rewrite ``old`` to ``new`` in ``user_id`` and ``actor_id``; counts holds touched."""
+        ids = list(self.filter(models.Q(user_id=old) | models.Q(actor_id=old)).values_list("pk", flat=True))
+        if ids:
+            self.filter(pk__in=ids, user_id=old).update(user_id=new)
+            self.filter(pk__in=ids, actor_id=old).update(actor_id=new)
+        return len(ids)
+
+
 @access.ops
 class StockHold(models.Model):
     """A checkout's claim on stock, keyed on the checkout attempt key."""
@@ -176,6 +186,8 @@ class StockHold(models.Model):
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     attempt_key = models.CharField(max_length=ATTEMPT_KEY_MAX_LENGTH, unique=True)
     user_id = models.CharField(max_length=USER_ID_MAX_LENGTH, null=True, blank=True)
+    #: The acting account (a guest's own id too) that owns the hold.
+    actor_id = models.CharField(max_length=USER_ID_MAX_LENGTH, null=True, blank=True)
     status = models.CharField(max_length=16, choices=HoldStatus.choices, default=HoldStatus.ACTIVE)
     expires_at = models.DateTimeField()
     reference = models.CharField(max_length=REFERENCE_MAX_LENGTH, blank=True, default="")
@@ -183,11 +195,14 @@ class StockHold(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    objects = HoldQuerySet.as_manager()
+
     class Meta:
         ordering = ["-id"]
         indexes = [
             models.Index(fields=["status", "expires_at"], name="inventory_hold_expiry"),
             models.Index(fields=["user_id"], name="inventory_hold_user"),
+            models.Index(fields=["actor_id"], name="inventory_hold_actor"),
         ]
 
     def __str__(self) -> str:

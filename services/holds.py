@@ -128,14 +128,21 @@ def _hold_item_ids(attempt_key: str) -> list[int]:
 # ── reserve ───────────────────────────────────────────────────────────────
 
 
+def actor_of(payload: dict) -> str | None:
+    """The hold owner: ``actor_id`` (a guest's own id too), else ``user_id`` (older orders)."""
+    raw = payload.get("actor_id") or payload.get("user_id")
+    return None if raw in (None, "") else str(raw)
+
+
 def reserve(payload: dict) -> dict:
     """Claim stock for every tracked line, or nothing. Returns ``{ok, token, errors}``."""
     attempt_key = str(payload["attempt_key"])
     lines = normalize_lines(payload.get("lines"))
     user_id = payload.get("user_id")
+    owner = (None if user_id in (None, "") else str(user_id), actor_of(payload))
     for attempt in range(2):
         try:
-            return _reserve_once(attempt_key, lines, None if user_id in (None, "") else str(user_id))
+            return _reserve_once(attempt_key, lines, *owner)
         except _Refused as refused:
             return {"ok": False, "token": None, "errors": refused.errors}
         except IntegrityError:
@@ -146,7 +153,7 @@ def reserve(payload: dict) -> dict:
     raise AssertionError("unreachable")  # pragma: no cover
 
 
-def _reserve_once(attempt_key, lines, user_id) -> dict:
+def _reserve_once(attempt_key, lines, user_id, actor_id) -> dict:
     from ..allocation import active_allocation
     from ..conf import inventory_settings
 
@@ -198,13 +205,16 @@ def _reserve_once(attempt_key, lines, user_id) -> dict:
 
         expires_at = now + dt.timedelta(seconds=int(inventory_settings.HOLD_TTL_SECONDS))
         if hold is None:
-            hold = StockHold.objects.create(attempt_key=attempt_key, user_id=user_id, expires_at=expires_at)
+            hold = StockHold.objects.create(attempt_key=attempt_key, user_id=user_id, actor_id=actor_id,
+                                            expires_at=expires_at)
         else:
             hold.status = HoldStatus.ACTIVE
             hold.expires_at = expires_at
             hold.user_id = user_id
+            hold.actor_id = actor_id
             hold.release_reason = ""
-            hold.save(update_fields=["status", "expires_at", "user_id", "release_reason", "updated_at"])
+            hold.save(update_fields=["status", "expires_at", "user_id", "actor_id", "release_reason",
+                                     "updated_at"])
         for line, allocations in plan:
             for allocation in allocations:
                 item = items[allocation.stock_item_id]
@@ -271,7 +281,8 @@ def commit(payload: dict) -> dict:
             )
         hold.status = HoldStatus.COMMITTED
         hold.reference = reference
-        hold.save(update_fields=["status", "reference", "updated_at"])
+        hold.actor_id = hold.actor_id or actor_of(payload)
+        hold.save(update_fields=["status", "reference", "actor_id", "updated_at"])
         _after_decrement(items.values(), emit, now, reference=reference or str(hold.pk))
         return _ok(hold)
 
@@ -400,4 +411,4 @@ def decrement_for_order(order_id: str, raw_lines) -> int:
         return moved
 
 
-__all__ = ["Line", "commit", "decrement_for_order", "expire_due", "normalize_lines", "release", "reserve"]
+__all__ = ["Line", "actor_of", "commit", "decrement_for_order", "expire_due", "normalize_lines", "release", "reserve"]

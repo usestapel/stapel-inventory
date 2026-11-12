@@ -59,7 +59,7 @@ def handle_user_merged(event):
     if not from_user_id or not into_user_id or from_user_id == into_user_id:
         return
     with transaction.atomic():
-        holds = StockHold.objects.filter(user_id=from_user_id).update(user_id=into_user_id)
+        holds = StockHold.objects.reassign_owner(from_user_id, into_user_id)
         movements = StockMovement.objects.reassign_actor(from_user_id, into_user_id)
     if holds or movements:
         logger.info("user.merged %s -> %s: %s hold(s), %s movement(s)", from_user_id, into_user_id,
