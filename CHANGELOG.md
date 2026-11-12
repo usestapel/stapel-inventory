@@ -13,7 +13,9 @@ Pre-1.0 semver: **minor = breaking**, patch = compatible.
   transfer, restock) and checkout holds with a TTL.
 - The orders checkout hook: `inventory.checkout.reserve` / `.commit` /
   `.release`, all-or-nothing across lines, row locks in ascending id order,
-  idempotent on the checkout attempt key; registered by
+  idempotent on the checkout attempt key; only a `cancelled` release undoes
+  a commit (restock), other reasons answer ok and change nothing, and a
+  commit after a cancel is a no-op; registered by
   `stapel_inventory.preset.SETTINGS_DEFAULTS`.
 - Allocation strategies `single_default` and `priority`
   (`register_allocation` for more); oversell policy `deny` / `backorder` with a

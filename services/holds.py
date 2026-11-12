@@ -253,7 +253,7 @@ def commit(payload: dict) -> dict:
         hold = StockHold.objects.select_for_update().get(pk=found.pk)
         if hold.status in (HoldStatus.COMMITTED, HoldStatus.RETURNED):
             return _ok(hold)
-        if hold.status == HoldStatus.RELEASED and hold.release_reason == REASON_CANCELLED:
+        if hold.status in (HoldStatus.RELEASED, HoldStatus.EXPIRED) and hold.release_reason == REASON_CANCELLED:
             # The cancel overtook the (retried) commit: the order is gone.
             return _ok(hold)
         holding = hold.status == HoldStatus.ACTIVE
@@ -295,13 +295,20 @@ def _after_decrement(items, emit, now, *, reference: str) -> None:
 
 
 def release(payload: dict) -> dict:
-    """Give the hold back; restock a committed one (order cancelled). Idempotent."""
+    """Give the hold back; only ``cancelled`` undoes a committed one. Idempotent.
+
+    An active hold is released for any reason. A committed hold is restocked
+    for ``cancelled`` (``RESTOCK_ON_CANCEL``); ``checkout_failed`` /
+    ``orphaned`` on it are a no-op answering ok. A cancel that finds the hold
+    released or expired is recorded so a late commit stays a no-op. A
+    payload without a reason never touches a committed hold.
+    """
     from ..conf import inventory_settings
 
     found = _find(payload)
     if found is None:
         return {"ok": True, "token": None, "errors": []}
-    reason = str(payload.get("reason") or REASON_CANCELLED)[:32]
+    reason = str(payload.get("reason") or "")[:32]
     now = timezone.now()
     with mutate_and_emit() as emit:
         lock_items(found.lines.values_list("stock_item_id", flat=True))
@@ -313,6 +320,11 @@ def release(payload: dict) -> dict:
               and inventory_settings.RESTOCK_ON_CANCEL):
             touched = _release_lines(hold, restock=True)
             hold.status = HoldStatus.RETURNED
+        elif (hold.status in (HoldStatus.RELEASED, HoldStatus.EXPIRED) and reason == REASON_CANCELLED
+              and hold.release_reason != REASON_CANCELLED):
+            hold.release_reason = reason
+            hold.save(update_fields=["release_reason", "updated_at"])
+            return _ok(hold)
         else:
             return _ok(hold)
         hold.release_reason = reason

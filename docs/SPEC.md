@@ -110,16 +110,21 @@ hand-wired host pastes it; upstream ask T-IN1):
   is retried by orders until `ok`. Decrements `on_hand` and consumes the
   hold. A hold the beat already expired is committed anyway (the order is
   the fact) and, if that drives a `deny` item below zero,
-  `inventory.stock.oversold` is emitted. A hold released by a `cancelled`
-  release stays released (the cancel overtook the retried commit). An
+  `inventory.stock.oversold` is emitted. A hold released (or expired) and
+  then reached by a `cancelled` release stays as it is (the cancel overtook
+  the retried commit). An
   unknown key answers `ok: true` with an ERROR log line — there are no lines
   to decrement, and `ok: false` would make orders retry forever.
 - `inventory.checkout.release` — `{attempt_key, token | null, order_id |
   null, reason: checkout_failed | cancelled | orphaned}` → `{ok, token,
   errors}`. An active hold is released; a committed hold released with
   `reason: cancelled` is **restocked** (a `restock` movement) when
-  `RESTOCK_ON_CANCEL` (default on); `orphaned`/`checkout_failed` never touch
-  a committed hold; an unknown key answers `ok: true`.
+  `RESTOCK_ON_CANCEL` (default on). **Only `cancelled` undoes a commit:**
+  `orphaned`/`checkout_failed` (or a payload without a reason) on a
+  committed hold are a no-op answering `ok: true`; a `cancelled` release on
+  a released/expired hold is recorded in `release_reason` so a late commit
+  stays a no-op; an unknown key answers `ok: true`.
+  `tests/test_release_semantics.py` is the full (state, event) table.
 
 The token is a convenience: every hook acts on `attempt_key` alone. Schemas
 allow additional properties on the hook payloads (orders may grow them).

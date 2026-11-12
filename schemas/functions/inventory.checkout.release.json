@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "inventory.checkout.release",
-  "description": "Orders checkout hook (release): a failed checkout, an orphan, or a cancelled order. An active hold is released; a committed hold released with reason cancelled is restocked (RESTOCK_ON_CANCEL). An unknown key answers ok. token may be null. Idempotent. Output ($defs.response): {ok, token, errors}.",
+  "description": "Orders checkout hook (release): a failed checkout, an orphan, or a cancelled order. An active hold is released for any reason. Only reason cancelled undoes a commit: a committed hold is restocked (RESTOCK_ON_CANCEL); checkout_failed / orphaned (or no reason) on a committed hold is a no-op answering ok. A cancelled release on a released or expired hold is recorded so a late commit stays a no-op. An unknown key answers ok. token may be null. Idempotent. Output ($defs.response): {ok, token, errors}.",
   "type": "object",
   "properties": {
     "attempt_key": {
