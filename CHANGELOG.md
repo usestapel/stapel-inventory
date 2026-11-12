@@ -7,6 +7,9 @@ Pre-1.0 semver: **minor = breaking**, patch = compatible.
 ## [0.1.0] - unreleased
 
 ### Added
+- Error translations `translations/errors.{ru,es}.json` in the wheel, gated
+  by `tests/test_error_i18n.py` (coverage, placeholders, byte form,
+  package-data).
 - `GET locations/` is anchor-paginated (`LocationPage`, creation order),
   like the stock list and the ledger.
 - `GET stock/{id}/` (staff): one stock item.

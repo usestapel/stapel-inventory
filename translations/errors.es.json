@@ -1,0 +1,13 @@
+{
+  "error.400.availability_too_many_keys": "Puedes consultar como máximo {max} artículos a la vez",
+  "error.400.stock_adjust_ambiguous": "Indica un cambio o una cantidad contada, no ambos",
+  "error.400.stock_transfer_same_location": "Elige dos almacenes distintos",
+  "error.404.location_not_found": "No se encontró el almacén {code}",
+  "error.404.stock_item_not_found": "No se encontró el artículo de inventario",
+  "error.409.default_location_required": "El almacén predeterminado {code} no se puede desactivar",
+  "error.409.insufficient_stock": "Solo quedan {available} unidades de este artículo",
+  "error.409.location_exists": "Ya existe un almacén con el código {code}",
+  "error.409.location_inactive": "El almacén {code} no está activo",
+  "error.409.stock_not_tracked": "Este artículo no se puede vender ahora",
+  "error.409.stock_would_go_negative": "Solo hay {on_hand} en este almacén"
+}

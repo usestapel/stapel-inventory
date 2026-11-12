@@ -1,0 +1,13 @@
+{
+  "error.400.availability_too_many_keys": "Можно запросить не больше {max} товаров за раз",
+  "error.400.stock_adjust_ambiguous": "Укажите либо изменение, либо пересчитанное количество, но не оба",
+  "error.400.stock_transfer_same_location": "Выберите два разных склада",
+  "error.404.location_not_found": "Склад {code} не найден",
+  "error.404.stock_item_not_found": "Складская позиция не найдена",
+  "error.409.default_location_required": "Склад по умолчанию {code} нельзя отключить",
+  "error.409.insufficient_stock": "Этого товара осталось только {available}",
+  "error.409.location_exists": "Склад с кодом {code} уже есть",
+  "error.409.location_inactive": "Склад {code} отключён",
+  "error.409.stock_not_tracked": "Этот товар сейчас нельзя продать",
+  "error.409.stock_would_go_negative": "На этом складе только {on_hand}"
+}
