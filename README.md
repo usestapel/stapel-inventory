@@ -30,7 +30,7 @@ pip install stapel-inventory
 | Config axes | 6 |
 | Usage surface | 5 |
 | Extension points | 6 |
-| Error codes | 53 |
+| Error codes | 54 |
 | Documented flows | 2 |
 | Fleet dependencies | [`stapel-auth`](https://github.com/usestapel/stapel-auth) (optional) · [`stapel-core`](https://github.com/usestapel/stapel-core) · [`stapel-orders`](https://github.com/usestapel/stapel-orders) (optional) |
 
